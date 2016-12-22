@@ -1,15 +1,3 @@
-
-task variables {
-    run { 
-		systemProperty "spring.datasource.username", "jacr"
-        sytemProperty "spring.datasource.url", "jacr.host.cs.st-andrews.ac.uk\/nomad-structure-prediction"
-		systemProperty "spring.datasource.password", "qU2ZcSJh8b!e1W"
-        systemProperty "spring.datasource.driver-class-name", "com.mysql.jdbc.Driver"		
-	}
-}
-
-build.mustRunAfter variables
-
 buildscript
 {
     repositories
