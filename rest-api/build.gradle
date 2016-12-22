@@ -1,3 +1,17 @@
+pring.datasource.username=jacr
+spring.datasource.url=jdbc:jacr.host.cs.st-andrews.ac.uk/nomad-structure-prediction
+spring.datasource.password=qU2ZcSJh8b!e1W
+spring.datasource.driver-class-name=com.mysql.jdbc.Driver
+
+task variables {
+    run { 
+		systemProperty "spring.datasource.username", "jacr"
+                sytemProperty "spring.datasource.url", "jacr.host
+	}
+}
+
+build.mustRunAfter variables
+
 buildscript
 {
     repositories
