@@ -1,6 +1,8 @@
 rest-api/.idea/
 rest-api/build/
+rest-api/.gradle/
+.gradle/
 .idea/
 build/
 front-end/.idea/
-fonrt-end/build/
+front-end/libs/ketcher/node_modules

@@ -1,0 +1,50 @@
+#prediction-list {
+    position: relative;
+    left: 2px;
+
+    overflow-x: auto !important;
+    overflow-y: none !important;
+    white-space:nowrap;
+    /* stops unwanted highlighting */
+    -webkit-user-select: none; /* Chrome/Safari */        
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* IE10+ */
+    /* Rules below not implemented in browsers yet */
+    -o-user-select: none;
+    user-select: none;
+}
+
+.prediction-panel {
+    margin-bottom: 0px !important;
+    border-radius: 0px !important;
+    width: 213px !important;
+    height: 170px !important;
+    display: inline-block !important;
+    border-radius: 5px !important;
+    border-color: #CFCFCF !important;
+    background-color: #E4E4E4 !important;
+}
+
+.prediction-panel.active {
+    background-color: white !important;
+}
+
+.prediction-panel.active:hover {
+    background-color: #F1F1F1 !important;
+    cursor: pointer;
+}
+
+.prediction-panel-body {
+    margin: 0 auto;
+    list-style: none;
+    padding: 0px !important;
+}
+
+.prediction-panel-body li {
+    height: 170px;
+}
+
+#ketcherFrame {
+    width:100%;
+    border: none;
+}

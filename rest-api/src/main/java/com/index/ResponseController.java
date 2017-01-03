@@ -19,7 +19,7 @@ public class ResponseController
     }
 
     @RequestMapping(method=GET, path="/predict")
-    public Response response() {
-        return service.createResponse();
+    public Iterable<Structure> predict() {
+        return service.prediction();
     }
 }
