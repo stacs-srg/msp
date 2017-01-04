@@ -16,4 +16,23 @@ public class Structure implements Serializable{
     @Column
     private String smile;
 
+    @Column
+    private String mol;
+
+    public String getSmile() {
+        return smile;
+    }
+
+    public void setSmile(String smile) {
+        this.smile = smile;
+    }
+
+    public String getMol() {
+        return mol;
+    }
+
+    public void setMol(String mol) {
+        this.mol = mol;
+    }
+
 }

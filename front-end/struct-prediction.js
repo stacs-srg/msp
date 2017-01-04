@@ -1,8 +1,18 @@
-// 0 zero for current. 
 var predictionMap = {};
+var lastSmile;
+var ketcher;
 
 ( function($) {
-    
+
+    $('#ketcherFrame').on('load', function () {
+        
+        var ketcher = getKetcher();  
+
+        ketcher.onStructChange(function() {
+            requestPredictions(ketcher.getSmiles());
+        });
+    });
+
     $( document ).ready(function() {
         
         $('#drawStructureModal').modal('show');
@@ -13,8 +23,9 @@ var predictionMap = {};
 
         var test = document.getElementById("test");
         test.addEventListener("click", function(event){
-            AddPrediction(1);
+            addPrediction(1);
         });
+
     });
 
     function getKetcher(){
@@ -25,15 +36,11 @@ var predictionMap = {};
         else
             return null;
 
-        if ('window' in frame)
-            var ketcher = frame.window.ketcher;
-            ketcher.onStructChange(function() {
-                console.log("change");
-            });
-        return frame.window.ketcher;
+        if ('window' in frame)            
+            return frame.window.ketcher;
     }
 
-    function AddPrediction(panelNumber){
+    function addPrediction(panelNumber){
 
         var panel = $("#panel-" + panelNumber);
 
@@ -41,7 +48,6 @@ var predictionMap = {};
 
         panel.parent().addClass("active");
 
-        var ketcher = getKetcher();
         //TODO change from: whatever is in the current set up.
         var molfile = ketcher.getMolfile();
 
@@ -62,26 +68,30 @@ var predictionMap = {};
     }
 
     function setStructure(pannelId) {
-        var ketcher = getKetcher();
         var molfile = predictionMap[pannelId];
         if (ketcher && molfile){
-            predictionMap[0] = ketcher.getMolfile();
             ketcher.setMolecule(molfile);
         }
     }
 
-    function requestPredictions(){
-        $.ajax({
-            url: "",
-            type: "get", //send it through get method
-            data:{ajaxid:4,UserID: UserID , EmailAddress:encodeURIComponent(EmailAddress)},
-            success: function(response) {
-                //Do Something
-            },
-            error: function(xhr) {
-                //Do Something to handle error
-            }
-        });
+    function requestPredictions(smiles){
+        if (lastSmile != smiles){
+            lastSmile = smiles;
+            $.ajax({
+                url: "http://localhost:8080/prediction",
+                type: "get", //send it through get method
+                data:{smile: smiles},
+                success: function(response) {
+                    for(var i in response){
+                        console.log(response);
+                        addPrediction(response[i]);
+                    }
+                },
+                error: function(xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
     }
 
 } ) ( jQuery );
