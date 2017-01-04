@@ -4,11 +4,8 @@ var ketcher;
 
 ( function($) {
 
-    $('#ketcherFrame').on('load', function () {
-        
-        var ketcher = getKetcher();  
-
-        ketcher.onStructChange(function() {
+    $('#ketcherFrame').on('load', function () {   
+        getKetcher().onStructChange(function() {
             requestPredictions(ketcher.getSmiles());
         });
     });
@@ -21,11 +18,11 @@ var ketcher;
             setStructure($(this).data("panel-id"))
         });
 
+        // Remove test button at some point.
         var test = document.getElementById("test");
         test.addEventListener("click", function(event){
-            addPrediction(1);
+            addPrediction(0);
         });
-
     });
 
     function getKetcher(){
@@ -40,16 +37,43 @@ var ketcher;
             return frame.window.ketcher;
     }
 
-    function addPrediction(panelNumber){
+    function requestPredictions(smiles){
+        if (lastSmile != smiles){
+            lastSmile = smiles;
+            $.ajax({
+                url: "http://localhost:8080/prediction",
+                type: "get", //send it through get method
+                data:{smile: smiles},
+                success: function(response) {
+                    requestPredictionSuccess(response);
+                },
+                error: function(xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+    }
+
+    function requestPredictionSuccess(response){
+        console.log(response);
+        i = 0;
+        while(i < response.size){
+            addPrediction(i, response[i]);
+            i++;
+        }
+        while(i < 3){
+            resetPanel(i);
+        }
+    }
+
+    function addPrediction(panelNumber, prediction){
 
         var panel = $("#panel-" + panelNumber);
-
         panel.empty();
-
         panel.parent().addClass("active");
 
         //TODO change from: whatever is in the current set up.
-        var molfile = ketcher.getMolfile();
+        var molfile = prediction.getMolfile();
 
         var result = ketcher.showMolfile($('<li>').appendTo(panel)[0], molfile, {
             bondLength: 20,
@@ -67,6 +91,13 @@ var ketcher;
         }
     }
 
+    function restPanel(panelNumber){
+        var panel = $("#panel-" + panelNumber);
+        panel.empty();
+        panel.parent().removeClass("active");
+        predictionMap[panelNumber] = null;
+    }
+
     function setStructure(pannelId) {
         var molfile = predictionMap[pannelId];
         if (ketcher && molfile){
@@ -74,24 +105,9 @@ var ketcher;
         }
     }
 
-    function requestPredictions(smiles){
-        if (lastSmile != smiles){
-            lastSmile = smiles;
-            $.ajax({
-                url: "http://localhost:8080/prediction",
-                type: "get", //send it through get method
-                data:{smile: smiles},
-                success: function(response) {
-                    for(var i in response){
-                        console.log(response);
-                        addPrediction(response[i]);
-                    }
-                },
-                error: function(xhr) {
-                    console.log(xhr);
-                }
-            });
-        }
+    function getMetadata(){
+        var array = $('#metadataForm').serializeArray();
+        return { userId : array[0].value, groupId : array[1].value};
     }
 
 } ) ( jQuery );
