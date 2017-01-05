@@ -25,7 +25,7 @@ public class StructurePredictionController
         return service.prediction();
     }
 
-    @RequestMapping(method=POST, path="/draw")
+    @RequestMapping(method=POST, path="/add/edge")
     public void addEdge(@RequestParam Structure to, @RequestParam Structure from){
         service.addEdge(to, from);
     }
