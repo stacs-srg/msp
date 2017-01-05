@@ -1,11 +1,11 @@
 var predictionMap = {};
 var lastSmile;
-var ketcher;
 
 ( function($) {
 
     $('#ketcherFrame').on('load', function () {   
-        getKetcher().onStructChange(function() {
+        var ketcher = getKetcher();
+        ketcher.onStructChange(function() {
             requestPredictions(ketcher.getSmiles());
         });
     });
@@ -75,7 +75,7 @@ var ketcher;
         //TODO change from: whatever is in the current set up.
         var molfile = prediction.getMolfile();
 
-        var result = ketcher.showMolfile($('<li>').appendTo(panel)[0], molfile, {
+        var result = getKetcher().showMolfile($('<li>').appendTo(panel)[0], molfile, {
             bondLength: 20,
             autoScale: true,
             autoScaleMargin: 20,
@@ -100,6 +100,7 @@ var ketcher;
 
     function setStructure(pannelId) {
         var molfile = predictionMap[pannelId];
+        var ketcher = getKetcher();
         if (ketcher && molfile){
             ketcher.setMolecule(molfile);
         }
