@@ -1,4 +1,4 @@
-package com.index;
+package com.index.entitys;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
@@ -8,7 +8,7 @@ import java.io.Serializable;
  * Created by jacr on 04/01/17.
  */
 @Embeddable
-class EdgeKey implements Serializable {
+public class EdgeKey implements Serializable {
 
     @Column
     private String smileTo;

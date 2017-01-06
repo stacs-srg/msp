@@ -1,5 +1,7 @@
-package com.index;
+package com.index.repos;
 
+import com.index.entitys.Edge;
+import com.index.entitys.EdgeKey;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 

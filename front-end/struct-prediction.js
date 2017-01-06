@@ -1,12 +1,19 @@
 var predictionMap = {};
-var lastSmile;
+var lastStrut;
 
 ( function($) {
 
     $('#ketcherFrame').on('load', function () {   
         var ketcher = getKetcher();
         ketcher.onStructChange(function() {
-            requestPredictions(ketcher.getSmiles());
+            var newStrut = { smile: ketcher.getSmiles(), mol : ketcher.getMolfile() };
+            if (!lastStrut || lastStrut.smile != newStrut.smile){
+                if(lastStrut){
+                    addUserDecision(lastStrut, newStrut);
+                }
+                lastStrut = newStrut;
+                requestPredictions(newStrut.smile);
+            }
         });
     });
 
@@ -18,11 +25,6 @@ var lastSmile;
             setStructure($(this).data("panel-id"))
         });
 
-        // Remove test button at some point.
-        var test = document.getElementById("test");
-        test.addEventListener("click", function(event){
-            addPrediction(0);
-        });
     });
 
     function getKetcher(){
@@ -38,31 +40,53 @@ var lastSmile;
     }
 
     function requestPredictions(smiles){
-        if (lastSmile != smiles){
-            lastSmile = smiles;
-            $.ajax({
-                url: "http://localhost:8080/prediction",
-                type: "get", //send it through get method
-                data:{smile: smiles},
-                success: function(response) {
-                    requestPredictionSuccess(response);
-                },
-                error: function(xhr) {
-                    console.log(xhr);
-                }
-            });
-        }
+        var user = getMetadata();
+        $.ajax({
+            url: "http://localhost:8080/prediction",
+            type: "get", //send it through get method
+            datatype: "json",
+            contentType: "application/json",
+            headers: { userId: user.userId, groupId: user.groupId }, 
+            data:{smile: smiles},
+            
+            success: function(response) {
+                requestPredictionSuccess(response);
+            },
+            
+            error: function(xhr) {
+                console.log(xhr);
+            }
+        });
+    }
+
+    function addUserDecision(from, to){
+        var user = getMetadata();
+        $.ajax({
+            url: "http://localhost:8080/add/user/decision",
+            type: "post", //send it through get method
+            datatype: "json",
+            contentType: "application/json",
+            headers: { userId: user.userId, groupId: user.groupId }, 
+            data: JSON.stringify( [to, from] ),
+            
+            success: function(response) {
+
+            },
+            error: function(xhr) {
+                console.log(xhr);
+            }
+        });
     }
 
     function requestPredictionSuccess(response){
-        console.log(response);
         i = 0;
-        while(i < response.size){
+        while(i < response.length && i < 4){
             addPrediction(i, response[i]);
             i++;
         }
-        while(i < 3){
-            resetPanel(i);
+        while(i < 4){
+            restPanel(i);
+            i++;
         }
     }
 
@@ -73,7 +97,7 @@ var lastSmile;
         panel.parent().addClass("active");
 
         //TODO change from: whatever is in the current set up.
-        var molfile = prediction.getMolfile();
+        var molfile = prediction.mol;
 
         var result = getKetcher().showMolfile($('<li>').appendTo(panel)[0], molfile, {
             bondLength: 20,

@@ -1,9 +1,8 @@
 package com.index;
 
+import com.index.entitys.Structure;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
@@ -20,13 +19,15 @@ public class StructurePredictionController
         return service.createResponse();
     }
 
+    @CrossOrigin
     @RequestMapping(method=GET, path="/prediction")
-    public Iterable<Structure> predict(@RequestParam String smile) {
+    public Iterable<Structure> predict(@RequestParam String smile, @RequestHeader int userId, @RequestHeader int groupId) {
         return service.prediction();
     }
 
-    @RequestMapping(method=POST, path="/add/edge")
-    public void addEdge(@RequestParam Structure to, @RequestParam Structure from){
-        service.addEdge(to, from);
+    @CrossOrigin
+    @RequestMapping(method=POST, path="/add/user/decision")
+    public void addEdge(@RequestBody Structure[] path, @RequestHeader int userId, @RequestHeader int groupId){
+        service.addEdge(path[0], path[1]);
     }
 }

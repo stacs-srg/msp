@@ -1,5 +1,9 @@
 package com.index;
 
+import com.index.entitys.Edge;
+import com.index.entitys.Structure;
+import com.index.repos.EdgeRepo;
+import com.index.repos.StructureRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -31,7 +35,7 @@ public class StructurePredictionService
             structureRepo.save(from);
         }
 
-        Edge edge = new Edge(new EdgeKey(to.getSmile(), from.getSmile()));
+        Edge edge = new Edge(to.getSmile(), from.getSmile());
         edgeRepo.save(edge);
     }
 }

@@ -1,4 +1,5 @@
-package com.index;
+package com.index.entitys;
+
 
 
 import javax.persistence.EmbeddedId;
@@ -17,8 +18,8 @@ public class Edge {
 
     }
 
-    public Edge(EdgeKey edgeKey){
-        this.edgeKey = edgeKey;
+    public Edge(String smileTo, String smileFrom){
+        this.edgeKey = new EdgeKey(smileTo, smileFrom);
     }
 
     public EdgeKey getEdgeKey() {
