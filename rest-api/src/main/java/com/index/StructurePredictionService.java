@@ -1,5 +1,7 @@
 package com.index;
 
+import org.RDKit.RWMol;
+
 import com.index.entitys.Edge;
 import com.index.entitys.Structure;
 import com.index.repos.EdgeRepo;

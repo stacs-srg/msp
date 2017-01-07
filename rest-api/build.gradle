@@ -7,6 +7,7 @@ buildscript
     dependencies
     {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:1.4.1.RELEASE")
+	classpath("org.ajoberstar:gradle-git:0.2.3")
     }
 }
 
@@ -40,5 +41,24 @@ dependencies {
     runtime("mysql:mysql-connector-java")
     compile("org.springframework.boot:spring-boot-starter-jdbc")
     compile ("org.springframework.boot:spring-boot-starter-web")
+    compile files('libs/jsmile_linux64/smile.jar')
+    compile files('libs/rdkit/Code/JavaWrappers/gmwrapper/org.RDKit.jar')
+}
+/* importing the rdkit repo then to get required java wrapper out of it. Also requires swig */
+import org.ajoberstar.gradle.git.tasks.*
+
+task cloneRDkit(type: GitClone) {
+        def destination = file("libs/rdkit")
+        uri = "https://github.com/rdkit/rdkit.git"
+        destinationPath = destination
+        bare = false
+        enabled = !destination.exists() //to clone only once
 }
 
+task buildRDkit(type: Exec){
+	commandLine 'bash','buildRDKit.sh'
+}
+
+build.dependsOn cloneRDkit
+build.dependsOn buildRDkit
+buildRDkit.dependsOn cloneRDkit

@@ -6,3 +6,4 @@ rest-api/.gradle/
 build/
 front-end/.idea/
 front-end/libs/ketcher/node_modules
+rest-api/libs/rdkit/
