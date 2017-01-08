@@ -14,17 +14,17 @@ public class Structure implements Serializable{
 
     @Id
     @Column
-    private String smile;
+    private String smiles;
 
     @Column
     private String mol;
 
-    public String getSmile() {
-        return smile;
+    public String getSmiles() {
+        return smiles;
     }
 
-    public void setSmile(String smile) {
-        this.smile = smile;
+    public void setSmiles(String smiles) {
+        this.smiles = smiles;
     }
 
     public String getMol() {

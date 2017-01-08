@@ -5,10 +5,13 @@ import javax.persistence.Embeddable;
 import java.io.Serializable;
 
 /**
- * Created by jacr on 04/01/17.
+ * Created by jacr on 07/01/17.
  */
 @Embeddable
-public class EdgeKey implements Serializable {
+public class MetadataGroupKey implements Serializable{
+
+    @Column
+    private int groupId;
 
     @Column
     private String smilesTo;
@@ -16,13 +19,22 @@ public class EdgeKey implements Serializable {
     @Column
     private String smilesFrom;
 
-    public EdgeKey(){
+    public MetadataGroupKey(){
 
     }
 
-    public EdgeKey(String smilesTo, String smilesFrom){
+    public MetadataGroupKey(int groupId, String smilesTo, String smilesFrom) {
+        this.groupId = groupId;
         this.smilesTo = smilesTo;
         this.smilesFrom = smilesFrom;
+    }
+
+    public int getGroupId() {
+        return groupId;
+    }
+
+    public void setGroupId(int groupId) {
+        this.groupId = groupId;
     }
 
     public String getSmilesTo() {
@@ -40,5 +52,4 @@ public class EdgeKey implements Serializable {
     public void setSmilesFrom(String smilesFrom) {
         this.smilesFrom = smilesFrom;
     }
-
 }

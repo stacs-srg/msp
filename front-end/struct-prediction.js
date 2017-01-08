@@ -6,13 +6,13 @@ var lastStrut;
     $('#ketcherFrame').on('load', function () {   
         var ketcher = getKetcher();
         ketcher.onStructChange(function() {
-            var newStrut = { smile: ketcher.getSmiles(), mol : ketcher.getMolfile() };
-            if (!lastStrut || lastStrut.smile != newStrut.smile){
+            var newStrut = { smiles: ketcher.getSmiles(), mol : ketcher.getMolfile() };
+            if (!lastStrut || lastStrut.smiles != newStrut.smiles){
                 if(lastStrut){
                     addUserDecision(lastStrut, newStrut);
                 }
                 lastStrut = newStrut;
-                requestPredictions(newStrut.smile);
+                requestPredictions(newStrut.smiles);
             }
         });
     });
@@ -47,7 +47,7 @@ var lastStrut;
             datatype: "json",
             contentType: "application/json",
             headers: { userId: user.userId, groupId: user.groupId }, 
-            data:{smile: smiles},
+            data:{"smiles": smiles},
             
             success: function(response) {
                 requestPredictionSuccess(response);
