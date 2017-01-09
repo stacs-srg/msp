@@ -42,6 +42,7 @@ dependencies {
     compile("org.springframework.boot:spring-boot-starter-jdbc")
     compile ("org.springframework.boot:spring-boot-starter-web")
     compile files('libs/jsmile_linux64/smile.jar')
+    complie filrd('libs/jsmile_linux64')
     compile files('libs/rdkit/Code/JavaWrappers/gmwrapper/org.RDKit.jar')
 }
 /* importing the rdkit repo then to get required java wrapper out of it. Also requires swig 

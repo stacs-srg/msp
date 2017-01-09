@@ -2,9 +2,8 @@ package com.index.entitys;
 
 
 
-import javax.persistence.EmbeddedId;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
+import java.util.List;
 
 /**
  * Created by jacr on 04/01/17.

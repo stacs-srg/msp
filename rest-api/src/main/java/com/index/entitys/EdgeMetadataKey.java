@@ -8,22 +8,22 @@ import java.io.Serializable;
  * Created by jacr on 07/01/17.
  */
 @Embeddable
-public class MetadataUserKey implements Serializable {
+public class EdgeMetadataKey implements Serializable {
 
-    @Column
+    @Column(name = "user_id")
     private int userId;
 
-    @Column
+    @Column(name = "smiles_to")
     private String smilesTo;
 
-    @Column
+    @Column(name = "smiles_from")
     private String smilesFrom;
 
-    public MetadataUserKey(){
+    public EdgeMetadataKey(){
 
     }
 
-    public MetadataUserKey(int userId, String smilesTo, String smilesFrom) {
+    public EdgeMetadataKey(int userId, String smilesTo, String smilesFrom) {
         this.userId = userId;
         this.smilesTo = smilesTo;
         this.smilesFrom = smilesFrom;

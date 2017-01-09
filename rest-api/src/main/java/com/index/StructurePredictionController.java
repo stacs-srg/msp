@@ -22,7 +22,7 @@ public class StructurePredictionController
     @CrossOrigin
     @RequestMapping(method=GET, path="/prediction")
     public Iterable<Structure> predict(@RequestParam String smiles, @RequestHeader int userId, @RequestHeader int groupId) {
-        return service.prediction();
+        return service.prediction(smiles, userId, groupId);
     }
 
     @CrossOrigin

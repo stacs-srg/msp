@@ -1,0 +1,11 @@
+DROP TABLE IF EXISTS metadata;
+DROP TABLE IF EXISTS edge;
+DROP TABLE IF EXISTS structure;
+
+CREATE TABLE structure(smiles VARCHAR(200), mol VARCHAR(10000), primary key (smiles));
+
+CREATE TABLE edge(smiles_to VARCHAR(200), smiles_from VARCHAR(200), primary key (smiles_to, smiles_from), FOREIGN KEY (smiles_to) REFERENCES structure(smiles), FOREIGN KEY (smiles_from) REFERENCES structure(smiles));
+
+CREATE TABLE edge_metadata(user_id INTEGER, group_id INTEGER, times INTEGER not null default 1, last_date TIMESTAMP, smiles_to VARCHAR(200), smiles_from VARCHAR(200), FOREIGN KEY (smiles_to) REFERENCES edge(smiles_to), FOREIGN KEY (smiles_from) REFERENCES edge(smiles_from), primary key (user_id, smiles_to, smiles_from));
+
+

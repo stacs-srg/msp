@@ -10,10 +10,10 @@ import java.io.Serializable;
 @Embeddable
 public class EdgeKey implements Serializable {
 
-    @Column
+    @Column(name = "smiles_to")
     private String smilesTo;
 
-    @Column
+    @Column(name = "smiles_from")
     private String smilesFrom;
 
     public EdgeKey(){
