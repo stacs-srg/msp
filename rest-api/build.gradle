@@ -44,10 +44,12 @@ dependencies {
     compile files('libs/jsmile_linux64/smile.jar')
     compile files('libs/rdkit/Code/JavaWrappers/gmwrapper/org.RDKit.jar')
 }
-/* importing the rdkit repo then to get required java wrapper out of it. Also requires swig */
+/* importing the rdkit repo then to get required java wrapper out of it. Also requires swig 
+build-essential python-numpy cmake python-dev sqlite3 libsqlite3-dev libboost-dev libboost-system-dev libboost-thread-dev libboost-serialization-dev libboost-python-dev libboost-regex-dev
+*/
 import org.ajoberstar.gradle.git.tasks.*
 
-task cloneRDkit(type: GitClone) {
+task cloneRDKit(type: GitClone) {
         def destination = file("libs/rdkit")
         uri = "https://github.com/rdkit/rdkit.git"
         destinationPath = destination
@@ -55,10 +57,16 @@ task cloneRDkit(type: GitClone) {
         enabled = !destination.exists() //to clone only once
 }
 
-task buildRDkit(type: Exec){
-	commandLine 'bash','buildRDKit.sh'
+task buildRDKit(type: Exec){
+    commandLine 'bash','buildRDKit.sh'
+    standardOutput = new ByteArrayOutputStream()
 }
 
-build.dependsOn cloneRDkit
-build.dependsOn buildRDkit
-buildRDkit.dependsOn cloneRDkit
+buildRDKit << {   
+    print standardOutput.toString()
+    if (standardOutput.toString("UTF-8") != "0\n") throw new GradleException("RDKIT failed build")  
+}
+
+build.dependsOn cloneRDKit
+build.dependsOn buildRDKit
+buildRDKit.dependsOn cloneRDKit

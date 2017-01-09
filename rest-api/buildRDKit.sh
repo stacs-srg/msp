@@ -6,4 +6,4 @@ if [ ! -d "libs/rdkit/make" ]; then
   make 
   make install
 fi
-echo "Done building rdkit."
+echo $?
