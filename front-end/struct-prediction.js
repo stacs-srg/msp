@@ -68,10 +68,6 @@ var lastStrut;
             contentType: "application/json",
             headers: { userId: user.userId, groupId: user.groupId }, 
             data: JSON.stringify( [to, from] ),
-            
-            success: function(response) {
-
-            },
             error: function(xhr) {
                 console.log(xhr);
             }
@@ -80,6 +76,7 @@ var lastStrut;
 
     function requestPredictionSuccess(response){
         i = 0;
+
         while(i < response.length && i < 4){
             addPrediction(i, response[i]);
             i++;
