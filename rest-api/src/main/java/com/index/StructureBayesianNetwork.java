@@ -23,9 +23,16 @@ public class StructureBayesianNetwork {
         // query for edges for given smile
         // loop round add struct node
         network.addNode(Network.NodeType.Cpt, "structureChoice");
+        network.addNode(Network.NodeType.Cpt, "user");
+        network.addNode(Network.NodeType.Cpt, "group");
+
+        network.addArc("user", "structureChoice");
+        network.addArc("group", "structureChoice");
+
+
     }
 
-    public List<Edge> generateBestChoices(){
+    public List<Edge> generateBestChoices(int userId, int groupId){
         List<Edge> result = new ArrayList<>();
         for (EdgeMetadata meta : edgeMetadata){
             result.add(meta.getEdge());

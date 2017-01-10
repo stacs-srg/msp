@@ -34,16 +34,16 @@ public class StructurePredictionService
     public Iterable<Structure> prediction(String smile, int userId, int groupId){
 
         try {
-            System.load(System.getenv("HOME") + "/cs4099/structure-predicition-sh/rest-api/libs/rdkit/Code/JavaWrappers/gmwrapper/libGraphMolWrap.so");
+            //System.load(System.getenv("HOME") + "/cs4099/structure-predicition-sh/rest-api/libs/rdkit/Code/JavaWrappers/gmwrapper/libGraphMolWrap.so");
         }catch (UnsatisfiedLinkError e){
             throw new UnsatisfiedLinkError("Can't Link RDKIT");
         }
 
-        StructureBayesianNetwork network = new StructureBayesianNetwork(edgeMetadataRepo.findAll());
+        StructureBayesianNetwork network = new StructureBayesianNetwork(edgeMetadataRepo.findBySmilesFrom(smile));
 
         List<Structure> structures = new ArrayList<>();
 
-        for(Edge edge : network.generateBestChoices()){
+        for(Edge edge : network.generateBestChoices(userId, groupId)){
             structures.add(structureRepo.findOne(edge.getEdgeKey().getSmilesTo()));
         }
 

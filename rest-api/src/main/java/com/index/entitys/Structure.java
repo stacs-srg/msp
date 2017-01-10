@@ -3,6 +3,7 @@ package com.index.entitys;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.validation.constraints.Size;
 import java.io.Serializable;
 
 
@@ -16,7 +17,7 @@ public class Structure implements Serializable{
     @Column
     private String smiles;
 
-    @Column
+    @Column(length = 2000)
     private String mol;
 
     public String getSmiles() {
