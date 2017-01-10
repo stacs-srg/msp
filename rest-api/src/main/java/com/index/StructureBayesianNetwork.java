@@ -24,10 +24,11 @@ public class StructureBayesianNetwork {
         // loop round add struct node
         network.addNode(Network.NodeType.Cpt, "structureChoice");
         network.addNode(Network.NodeType.Cpt, "user");
-        network.addNode(Network.NodeType.Cpt, "group");
+        //network.addNode(Network.NodeType.Cpt, "group");
 
         network.addArc("user", "structureChoice");
-        network.addArc("group", "structureChoice");
+        //network.addArc("group", "structureChoice");
+
 
 
     }

@@ -25,6 +25,11 @@ public interface EdgeMetadataRepo extends JpaRepository<EdgeMetadata, EdgeMetada
     void increment(EdgeMetadataKey edgeMetadataKey);
 
     @Query("SELECT m FROM EdgeMetadata m " +
-            "WHERE m.edgeMetadataKey.smilesFrom = ?1")
+            "WHERE m.edgeMetadataKey.smilesFrom = ?1 ")
     List<EdgeMetadata> findBySmilesFrom(String smilesFrom);
+
+//    @Query("SELECT count( DISTINCT( m.edgeMetadataKey.userId )) FROM EdgeMetadata m " +
+//            "WHERE m.edgeMetadataKey.smilesFrom = ?1")
+//   int findBySmilesFromNumberOfUsers(String smilesFrom);
+
 }
