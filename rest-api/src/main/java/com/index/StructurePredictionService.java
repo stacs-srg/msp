@@ -34,10 +34,9 @@ public class StructurePredictionService
     public Iterable<Structure> prediction(String smile, int userId, int groupId){
 
         try {
-            //System.load(System.getenv("HOME") + "/cs4099/structure-predicition-sh/rest-api/libs/rdkit/Code/JavaWrappers/gmwrapper/libGraphMolWrap.so");
-            System.load(System.getenv("HOME") + "/cs4099/structure-predicition-sh/rest-api/libs/jsmile_linux64/jsmile.so");
+            System.load(System.getenv("HOME") + "/cs4099/structure-predicition-sh/rest-api/libs/rdkit/Code/JavaWrappers/gmwrapper/libGraphMolWrap.so");
         }catch (UnsatisfiedLinkError e){
-            throw new UnsatisfiedLinkError("Can't Link RDKIT Or JSMILE");
+            throw new UnsatisfiedLinkError("Can't Link RDKIT");
         }
 
         StructureBayesianNetwork network = new StructureBayesianNetwork(edgeMetadataRepo.findAll());
