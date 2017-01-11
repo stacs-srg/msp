@@ -5,7 +5,6 @@ import com.index.entitys.EdgeMetadataKey;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,4 +28,17 @@ public interface EdgeMetadataRepo extends JpaRepository<EdgeMetadata, EdgeMetada
             "ORDER BY m.edgeMetadataKey.userId ASC, m.edgeMetadataKey.smilesTo")
     List<EdgeMetadata> findBySmilesFrom(String smilesFrom);
 
+    @Query("SELECT m.edgeMetadataKey.userId, SUM(m.times) AS totalChoicesMade " +
+            "FROM EdgeMetadata m " +
+            "WHERE m.edgeMetadataKey.smilesFrom = ?1 " +
+            "GROUP BY m.edgeMetadataKey.userId " +
+            "ORDER BY m.edgeMetadataKey.userId ASC")
+    List<Object[]> findBySmilesFromAllUsersPlusTotalChoicesMade(String smilesFrom);
+
+    @Query("SELECT m.edgeMetadataKey.smilesTo " +
+            "FROM EdgeMetadata m " +
+            "WHERE m.edgeMetadataKey.smilesFrom = ?1 " +
+            "GROUP BY m.edgeMetadataKey.smilesTo " +
+            "ORDER BY m.edgeMetadataKey.smilesTo ")
+    List<String> findBySmilesFromAllSmilesTo(String smilesFrom);
 }

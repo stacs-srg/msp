@@ -1,5 +1,5 @@
 var predictionMap = {};
-var lastStrut;
+var strucutresHistory = [];
 
 ( function($) {
 
@@ -7,12 +7,26 @@ var lastStrut;
         var ketcher = getKetcher();
         ketcher.onStructChange(function() {
             var newStrut = { smiles: ketcher.getSmiles(), mol : ketcher.getMolfile() };
+            
+            var index = strucutresHistory.length - 2;
+            if (strucutresHistory.length == 0){
+                var top = { smiles : ""};
+                strucutresHistory.push(top);
+            }
+            
+            var lastStrut = strucutresHistory[index];
+            
+
             if (!lastStrut || lastStrut.smiles != newStrut.smiles){
+                
                 if(lastStrut){
                     addUserDecision(lastStrut, newStrut);
                 }
-                lastStrut = newStrut;
+
+                strucutresHistory.push(newStrut);
                 requestPredictions(newStrut.smiles);
+            } else if (lastStrut && lastStrut.smiles == newStrut.smiles){
+                strucutresHistory.pop();
             }
         });
     });

@@ -19,8 +19,8 @@ public class Edge {
 
     }
 
-    public Edge(String smileTo, String smileFrom){
-        this.edgeKey = new EdgeKey(smileTo, smileFrom);
+    public Edge(String smilesTo, String smilesFrom){
+        this.edgeKey = new EdgeKey(smilesTo, smilesFrom);
     }
 
     public EdgeKey getEdgeKey() {

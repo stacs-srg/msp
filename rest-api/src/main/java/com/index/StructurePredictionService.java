@@ -3,6 +3,7 @@ package com.index;
 import com.index.entitys.*;
 import com.index.repos.EdgeRepo;
 import com.index.repos.EdgeMetadataRepo;
+import com.index.repos.SmilesToProb;
 import com.index.repos.StructureRepo;
 import org.RDKit.RWMol;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +32,7 @@ public class StructurePredictionService
         return new Response("Chemical Molecular Structure Prediction tool");
     }
 
-    public Iterable<Structure> prediction(String smile, int userId, int groupId){
+    public Iterable<Structure> prediction(String smiles, int userId, int groupId){
 
         try {
             //System.load(System.getenv("HOME") + "/cs4099/structure-predicition-sh/rest-api/libs/rdkit/Code/JavaWrappers/gmwrapper/libGraphMolWrap.so");
@@ -39,14 +40,13 @@ public class StructurePredictionService
             throw new UnsatisfiedLinkError("Can't Link RDKIT");
         }
 
-        StructureBayesianNetwork network = new StructureBayesianNetwork(edgeMetadataRepo.findBySmilesFrom(smile));
+        StructureBayesianNetwork network = new StructureBayesianNetwork(smiles, edgeMetadataRepo);
 
         List<Structure> structures = new ArrayList<>();
 
-        for(Edge edge : network.generateBestChoices(userId, groupId)){
-            structures.add(structureRepo.findOne(edge.getEdgeKey().getSmilesTo()));
+        for(SmilesToProb smilesTo : network.generateBestChoices(userId, groupId)){
+            structures.add(structureRepo.findOne(smilesTo.getSmilesTo()));
         }
-
         return structures;
     }
 
