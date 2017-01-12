@@ -1,5 +1,5 @@
 var predictionMap = {};
-var strucutresHistory = [];
+var strucutresHistory = { structures : [], index : 0 };
 
 ( function($) {
 
@@ -8,25 +8,37 @@ var strucutresHistory = [];
         ketcher.onStructChange(function() {
             var newStrut = { smiles: ketcher.getSmiles(), mol : ketcher.getMolfile() };
             
-            var index = strucutresHistory.length - 2;
-            if (strucutresHistory.length == 0){
+            var structures = strucutresHistory.structures;
+
+            if (strucutresHistory.index == 0){
                 var top = { smiles : ""};
-                strucutresHistory.push(top);
+                structures.push(top);
             }
             
-            var lastStrut = strucutresHistory[index];
-            
+            var lastStrut = structures[strucutresHistory.index - 1];
+            var futureStrut = structures[strucutresHistory.index + 1];
+            var undo = false;
+            var redo = false;
+            if (lastStrut && lastStrut.smiles == newStrut.smiles){
+                undo = true;
+            }
 
-            if (!lastStrut || lastStrut.smiles != newStrut.smiles){
-                
+            if (futureStrut && futureStrut.smiles == newStrut.smiles){
+                redo = true;
+            }
+
+            if (!undo && !redo){
+                // ingore the starting edge. 
                 if(lastStrut){
                     addUserDecision(lastStrut, newStrut);
                 }
 
-                strucutresHistory.push(newStrut);
+                structures.splice(++strucutresHistory.index, 0, newStrut);
                 requestPredictions(newStrut.smiles);
-            } else if (lastStrut && lastStrut.smiles == newStrut.smiles){
-                strucutresHistory.pop();
+            } else if (undo){
+                strucutresHistory.index--;
+            }else if (redo){
+                strucutresHistory.index++;
             }
         });
     });
