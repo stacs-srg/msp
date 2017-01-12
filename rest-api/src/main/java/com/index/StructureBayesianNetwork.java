@@ -139,7 +139,7 @@ public class StructureBayesianNetwork {
 
         List<SmilesToProb> result = new ArrayList<>();
         double[] probs;
-        // no next choice found, one result found or if user choice to make.
+        // No next choice found, one result found or if user choice to make.
         if (structNodeNameToSmiles == null){
             return result;
         }else if(structNodeNameToSmiles.size() == 1){
@@ -154,15 +154,14 @@ public class StructureBayesianNetwork {
             probs = network.getNodeDefinition(structureNodeName);
         }
 
-        // Getting the index of the "Failure" outcome:
         String[] aSuccessOutcomeIds = network.getOutcomeIds(structureNodeName);
         for (int i = 0; i < aSuccessOutcomeIds.length; i++) {
-            // Getting the value of the probability:
+            // Getting the probability for node:
             double prob = probs[i];
             String smilesTo = structNodeNameToSmiles.get(structureNodeStart + i);
             result.add(new SmilesToProb(smilesTo, prob));
         }
-        // Sort it in order of probs.
+        // Sort it in order of probabilities.
         Collections.sort(result);
         return result;
     }
