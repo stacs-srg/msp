@@ -1,5 +1,6 @@
 var predictionMap = {};
-var strucutresHistory = { structures : [], index : 0 };
+// initially nothing.
+var structurePath = [ { smiles : ""} ];
 
 ( function($) {
 
@@ -7,38 +8,14 @@ var strucutresHistory = { structures : [], index : 0 };
         var ketcher = getKetcher();
         ketcher.onStructChange(function() {
             var newStrut = { smiles: ketcher.getSmiles(), mol : ketcher.getMolfile() };
-            
-            var structures = strucutresHistory.structures;
-
-            if (strucutresHistory.index == 0){
-                var top = { smiles : ""};
-                structures.push(top);
-            }
-            
-            var lastStrut = structures[strucutresHistory.index - 1];
-            var futureStrut = structures[strucutresHistory.index + 1];
-            var undo = false;
-            var redo = false;
-            if (lastStrut && lastStrut.smiles == newStrut.smiles){
-                undo = true;
-            }
-
-            if (futureStrut && futureStrut.smiles == newStrut.smiles){
-                redo = true;
-            }
-
-            if (!undo && !redo){
-                // ingore the starting edge. 
-                if(lastStrut){
-                    addUserDecision(lastStrut, newStrut);
-                }
-
-                structures.splice(++strucutresHistory.index, 0, newStrut);
+            var lastStrut = structurePath[structurePath.length - 2];
+            // remove something if undo button was pressed.
+            var undo = (lastStrut && lastStrut.smiles == newStrut.smiles);
+            if (!undo){
+                structurePath.push(newStrut);
                 requestPredictions(newStrut.smiles);
             } else if (undo){
-                strucutresHistory.index--;
-            }else if (redo){
-                strucutresHistory.index++;
+                structurePath.pop();
             }
         });
     });
@@ -51,6 +28,13 @@ var strucutresHistory = { structures : [], index : 0 };
             setStructure($(this).data("panel-id"))
         });
 
+        $('#searchBtn').click(function() {
+            addStructure();
+        });
+
+        $('#closeBtn').click(function(){
+            addStructure();
+        });
     });
 
     function getKetcher(){
@@ -69,7 +53,7 @@ var strucutresHistory = { structures : [], index : 0 };
         var user = getMetadata();
         $.ajax({
             url: "http://localhost:8080/prediction",
-            type: "get", //send it through get method
+            type: "get",
             datatype: "json",
             contentType: "application/json",
             headers: { userId: user.userId, groupId: user.groupId }, 
@@ -85,19 +69,23 @@ var strucutresHistory = { structures : [], index : 0 };
         });
     }
 
-    function addUserDecision(from, to){
-        var user = getMetadata();
-        $.ajax({
-            url: "http://localhost:8080/add/user/decision",
-            type: "post", //send it through get method
-            datatype: "json",
-            contentType: "application/json",
-            headers: { userId: user.userId, groupId: user.groupId }, 
-            data: JSON.stringify( [to, from] ),
-            error: function(xhr) {
-                console.log(xhr);
-            }
-        });
+    function addStructure(){
+        if (structurePath.length != 0){
+            var user = getMetadata();
+            structurePath.splice(0, 1);
+            $.ajax({
+                url: "http://localhost:8080/add/structure/",
+                type: "post",
+                datatype: "json",
+                contentType: "application/json",
+                headers: { userId: user.userId, groupId: user.groupId }, 
+                data: JSON.stringify( structurePath ),
+                error: function(xhr) {
+                    console.log(xhr);
+                }
+            });
+            structurePath.splice(0, 0, { smiles: "" })
+        }
     }
 
     function requestPredictionSuccess(response){
@@ -119,7 +107,6 @@ var strucutresHistory = { structures : [], index : 0 };
         panel.empty();
         panel.parent().addClass("active");
 
-        //TODO change from: whatever is in the current set up.
         var molfile = prediction.mol;
 
         var result = getKetcher().showMolfile($('<li>').appendTo(panel)[0], molfile, {

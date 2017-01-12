@@ -19,7 +19,7 @@ public class Edge {
 
     }
 
-    public Edge(String smilesTo, String smilesFrom){
+    public Edge(String smilesFrom, String smilesTo){
         this.edgeKey = new EdgeKey(smilesTo, smilesFrom);
     }
 
@@ -31,4 +31,3 @@ public class Edge {
         this.edgeKey = edgeKey;
     }
 }
-

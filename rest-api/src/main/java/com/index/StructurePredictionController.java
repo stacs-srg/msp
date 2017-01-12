@@ -26,8 +26,8 @@ public class StructurePredictionController
     }
 
     @CrossOrigin
-    @RequestMapping(method=POST, path="/add/user/decision")
-    public void addEdge(@RequestBody Structure[] path, @RequestHeader int userId, @RequestHeader int groupId){
-        service.addEdge(path[0], path[1], userId, groupId);
+    @RequestMapping(method=POST, path="/add/structure")
+    public void addStrucutre(@RequestBody Structure[] path, @RequestHeader int userId, @RequestHeader int groupId){
+        service.addStructure(path, userId, groupId);
     }
 }

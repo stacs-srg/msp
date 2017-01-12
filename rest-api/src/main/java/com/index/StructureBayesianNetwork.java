@@ -55,7 +55,6 @@ public class StructureBayesianNetwork {
                 smileIndex++;
             }
         }
-
         if(userIds.size() == 1){
             // No need for user node as no choice to be made!
             network.deleteNode("user");

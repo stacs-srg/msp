@@ -50,12 +50,19 @@ public class StructurePredictionService
         return structures;
     }
 
-    public void addEdge(Structure to, Structure from, int userId, int groupId){
-        structureRepo.save(to);
-        structureRepo.save(from);
-        edgeRepo.save(new Edge(to.getSmiles(), from.getSmiles()));
+    public void addStructure(Structure[] path, int userId, int groupId){
+        path[path.length - 1].setEnd(1);
+        structureRepo.save(path[0]);
+        for(int i = 1; i < path.length; i++){
+            System.out.println("from: " + path[i - 1].getSmiles() + " to:" + path[i].getSmiles());
+            structureRepo.save(path[i]);
+            addEdge(path[i - 1].getSmiles(), path[i].getSmiles(), userId, groupId);
+        }
+    }
 
-        EdgeMetadataKey userKey = new EdgeMetadataKey(userId, to.getSmiles(), from.getSmiles());
+    private void addEdge(String from, String to, int userId, int groupId){
+        edgeRepo.save(new Edge(to, from));
+        EdgeMetadataKey userKey = new EdgeMetadataKey(userId, to, from);
 
         if(edgeMetadataRepo.exists(userKey)){
            edgeMetadataRepo.increment(userKey);
