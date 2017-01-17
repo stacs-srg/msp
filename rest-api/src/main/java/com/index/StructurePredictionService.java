@@ -5,13 +5,11 @@ import com.index.repos.EdgeRepo;
 import com.index.repos.EdgeMetadataRepo;
 import com.index.repos.SmilesToProb;
 import com.index.repos.StructureRepo;
-import org.RDKit.RWMol;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 
 @Service
@@ -29,33 +27,38 @@ public class StructurePredictionService
 
     public Response createResponse()
     {
-        return new Response("Chemical Molecular Structure Prediction tool");
+        return new Response("Chemical Molecular Structure Prediction Tool");
     }
 
     public Iterable<Structure> prediction(String smiles, int userId, int groupId){
 
         try {
+            // TODO remove mols in database and replace with use RDKIT to generate.
             //System.load(System.getenv("HOME") + "/cs4099/structure-predicition-sh/rest-api/libs/rdkit/Code/JavaWrappers/gmwrapper/libGraphMolWrap.so");
         }catch (UnsatisfiedLinkError e){
             throw new UnsatisfiedLinkError("Can't Link RDKIT");
         }
 
-        StructureBayesianNetwork network = new StructureBayesianNetwork(smiles, edgeMetadataRepo);
-
+        StructureBayesianNetwork network = new StructureBayesianNetwork(smiles, userId, groupId, edgeMetadataRepo);
         List<Structure> structures = new ArrayList<>();
-
-        for(SmilesToProb smilesTo : network.generateBestChoices(userId, groupId)){
+        for(SmilesToProb smilesTo : network.generateBestChoices()){
             structures.add(structureRepo.findOne(smilesTo.getSmilesTo()));
         }
         return structures;
     }
 
-    public void addEdge(Structure to, Structure from, int userId, int groupId){
-        structureRepo.save(to);
-        structureRepo.save(from);
-        edgeRepo.save(new Edge(to.getSmiles(), from.getSmiles()));
+    public void addStructure(Structure[] path, int userId, int groupId){
+        path[path.length - 1].setEnd(1);
+        structureRepo.save(path[0]);
+        for(int i = 1; i < path.length; i++){
+            structureRepo.save(path[i]);
+            addEdge(path[i - 1].getSmiles(), path[i].getSmiles(), userId, groupId);
+        }
+    }
 
-        EdgeMetadataKey userKey = new EdgeMetadataKey(userId, to.getSmiles(), from.getSmiles());
+    private void addEdge(String from, String to, int userId, int groupId){
+        edgeRepo.save(new Edge(from, to));
+        EdgeMetadataKey userKey = new EdgeMetadataKey(userId, from, to);
 
         if(edgeMetadataRepo.exists(userKey)){
            edgeMetadataRepo.increment(userKey);

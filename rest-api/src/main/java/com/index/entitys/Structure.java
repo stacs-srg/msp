@@ -20,6 +20,9 @@ public class Structure implements Serializable{
     @Column(length = 2000)
     private String mol;
 
+    @Column
+    private int end;
+
     public String getSmiles() {
         return smiles;
     }
@@ -36,4 +39,11 @@ public class Structure implements Serializable{
         this.mol = mol;
     }
 
+    public int getEnd() {
+        return end;
+    }
+
+    public void setEnd(int end) {
+        this.end = end;
+    }
 }
