@@ -13,10 +13,10 @@ var structurePath = [ { smiles : ""} ];
             var undo = (lastStrut && lastStrut.smiles == newStrut.smiles);
             if (!undo){
                 structurePath.push(newStrut);
-                requestPredictions(newStrut.smiles);
             } else if (undo){
                 structurePath.pop();
             }
+            requestPredictions(newStrut.smiles);
         });
     });
 
@@ -61,6 +61,7 @@ var structurePath = [ { smiles : ""} ];
             
             success: function(response) {
                 requestPredictionSuccess(response);
+                console.log(response);
             },
             
             error: function(xhr) {

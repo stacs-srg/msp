@@ -33,12 +33,18 @@ public interface EdgeMetadataRepo extends JpaRepository<EdgeMetadata, EdgeMetada
             "WHERE m.edgeMetadataKey.smilesFrom = ?1 " +
             "GROUP BY m.edgeMetadataKey.userId " +
             "ORDER BY m.edgeMetadataKey.userId ASC")
-    List<Object[]> findBySmilesFromAllUsersPlusTotalChoicesMade(String smilesFrom);
+    List<Object[]> findBySmilesFromAllUsersAndTotalChoicesMade(String smilesFrom);
 
-    @Query("SELECT m.edgeMetadataKey.smilesTo " +
+    @Query("SELECT m.edgeMetadataKey.smilesTo, SUM(m.times) As totalTimesPicked " +
             "FROM EdgeMetadata m " +
             "WHERE m.edgeMetadataKey.smilesFrom = ?1 " +
             "GROUP BY m.edgeMetadataKey.smilesTo " +
             "ORDER BY m.edgeMetadataKey.smilesTo ")
-    List<String> findBySmilesFromAllSmilesTo(String smilesFrom);
+    List<Object[]> findBySmilesFromAllSmilesToAndTotalTimesPicked(String smilesFrom);
+
+    @Query("SELECT SUM(m.times) As total " +
+            "FROM EdgeMetadata m " +
+            "WHERE m.edgeMetadataKey.smilesFrom = ?1 " +
+            "GROUP BY m.edgeMetadataKey.smilesFrom ")
+   long findBySmilesFromTotalRows(String smilesFrom);
 }

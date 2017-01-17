@@ -23,7 +23,7 @@ public class EdgeMetadataKey implements Serializable {
 
     }
 
-    public EdgeMetadataKey(int userId, String smilesTo, String smilesFrom) {
+    public EdgeMetadataKey(int userId, String smilesFrom, String smilesTo) {
         this.userId = userId;
         this.smilesTo = smilesTo;
         this.smilesFrom = smilesFrom;
