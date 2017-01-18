@@ -1,9 +1,9 @@
 package com.index;
 
+import com.index.entitys.EdgeMetadata;
 import com.index.repos.EdgeMetadataRepo;
 import com.index.repos.SmilesToProb;
 import smile.Network;
-import smile.SMILEException;
 
 import java.util.*;
 
@@ -47,86 +47,94 @@ public class StructureBayesianNetwork {
         }
         long totalDecisions = repo.findBySmilesFromTotalRows(smilesFrom);
 
-        createNetwork();
+        this.network = new Network();
+        network.addNode(Network.NodeType.Cpt, structureNodeName);
+        network.addNode(Network.NodeType.Cpt, userNodeName);
 
-        HashMap<String, Long> userIdToTotalChoicesMade = new HashMap<>();
-        HashMap<String, Long> smilesToToTotalTimesPicked = new HashMap<>();
-        addOutcomesToNetworkAndSetupMaps(userIdToTotalChoicesMade, smilesToToTotalTimesPicked, userIds, smilesTos);
+        Map<String, Long> userIdTotalDecisions = new LinkedHashMap<>();
+        Map<String, Long> smilesToTotalPicks = new LinkedHashMap<>();
+        addOutcomesToNetworkAndSetupMaps(userIdTotalDecisions, smilesToTotalPicks, userIds, smilesTos);
 
-        if(userIds.size() == 1 || userIdToTotalChoicesMade.get(userNodeStart + userId) == null){
+        if(userIds.size() == 1 || userIdTotalDecisions.get(userNodeStart + userId) == null){
             // No need for user node as no choice to be made!
             network.deleteNode("user");
         }else{
             // By default the node must have two outcomes. Remove the default outcomes.
             network.deleteOutcome(userNodeName, 0);
             network.deleteOutcome(userNodeName, 0);
-            setUserNodeDef(userIdToTotalChoicesMade, totalDecisions);
+            setUserNodeDef(userIdTotalDecisions, totalDecisions);
             network.addArc(userNodeName, structureNodeName);
         }
         // remove the default structures.
         network.deleteOutcome(structureNodeName, 0);
         network.deleteOutcome(structureNodeName, 0);
-        setStructureChoiceDef(smilesToToTotalTimesPicked, totalDecisions);
+        setStructureChoiceDef(smilesToTotalPicks, userIdTotalDecisions, repo.findBySmilesFrom(smilesFrom), totalDecisions);
         // print network for testing purposes.
         network.writeFile("test_network.xdsl");
     }
 
-    private void addOutcomesToNetworkAndSetupMaps(HashMap<String, Long> userIdToTotalChoicesMade,
-                                                  HashMap<String, Long> smilesToToTotalTimesPicked, List<Object[]> userIds, List<Object[]> smilesTos){
+    private void addOutcomesToNetworkAndSetupMaps(Map<String, Long> userIdTotalDecisions,
+                                                  Map<String, Long> smilesToTotalPicks, List<Object[]> userIds, List<Object[]> smilesTos){
         int smileIndex = 0;
         for(int i = 0; i < userIds.size() || i < smilesTos.size(); i++){
             if (i < userIds.size()) {
-                userIdToTotalChoicesMade.put(userNodeStart + userIds.get(i)[0], (Long) userIds.get(i)[1]);
+                userIdTotalDecisions.put(userNodeStart + userIds.get(i)[0], (Long) userIds.get(i)[1]);
                 network.addOutcome(userNodeName, userNodeStart + userIds.get(i)[0]);
             }
             // Add a node for each smile
             if (i < smilesTos.size()) {
                 network.addOutcome(structureNodeName, structureNodeStart + smileIndex);
                 structNodeNameToSmiles.put(structureNodeStart + smileIndex, (String) smilesTos.get(i)[0]);
-                smilesToToTotalTimesPicked.put(structureNodeStart + smileIndex, (Long) smilesTos.get(i)[1]);
+                smilesToTotalPicks.put(structureNodeStart + smileIndex, (Long) smilesTos.get(i)[1]);
                 smileIndex++;
             }
         }
     }
 
-    private void createNetwork(){
-        this.network = new Network();
-        network.addNode(Network.NodeType.Cpt, structureNodeName);
-        network.addNode(Network.NodeType.Cpt, userNodeName);
+    private void setUserNodeDef(Map<String, Long> userIdTotalDecisions, long totalDecisions){
+        double[] userDefinition = new double[userIdTotalDecisions.size()];
+        int i = 0;
+        for(Map.Entry<String, Long> userEntry : userIdTotalDecisions.entrySet()){
+            // The number of times a user has made a choice / total times a choice has been made.
+            userDefinition[i++] = (double) userEntry.getValue() / (double) totalDecisions;
+        }
+        network.setNodeDefinition(userNodeName, userDefinition);
     }
 
-    private void setStructureChoiceDef(Map<String, Long> smilesToToTotalTimesPicked, long totalDecisions){
-        int userDefSize;
-        double[] userDefinition = null;
-        try {
-            userDefinition = network.getNodeDefinition(userNodeName);
-            userDefSize = userDefinition.length;
-        }catch (SMILEException e){
-             userDefSize = 1;
-        }
-        String[] structureOutcomes = network.getOutcomeIds(structureNodeName);
-        double[] structureDefinition = new double[userDefSize * smilesToToTotalTimesPicked.size()];
+    private void setStructureChoiceDef(Map<String, Long> smilesToToTotalTimesPicked, Map<String, Long> userIdTotalDecisions, List<EdgeMetadata> edges, long totalDecisions){
+
+        double[] structureDefinition = new double[userIdTotalDecisions.size() * smilesToToTotalTimesPicked.size()];
         int defIndex = 0;
-        for (int j = 0; j < userDefSize; j++) {
-            for (String structure : structureOutcomes) {
-                // P(A) = P(A U B) * P(B) / P(B)
-                double structDef = smilesToToTotalTimesPicked.get(structure) / (double) totalDecisions;
-                double userDef = (userDefinition != null)  ? userDefinition[j] : 1;
-                structureDefinition[defIndex++] = (structDef * userDef ) / userDef;
+        int edgesIndex = 0;
+        System.out.println("userSize: " + userIdTotalDecisions.size());
+        System.out.println("SmilesSize: " + smilesToToTotalTimesPicked.size());
+        for (Map.Entry<String, Long> userEntry : userIdTotalDecisions.entrySet()) {
+            for (Map.Entry<String, Long> SmileEntry : smilesToToTotalTimesPicked.entrySet()) {
+                // Check you have not run out of edges to look at.
+                if (edgesIndex < edges.size()) {
+                    EdgeMetadata currentEdge = edges.get(edgesIndex);
+                    int currentEdgeUser = currentEdge.getEdgeMetadataKey().getUserId();
+                    // current Edge being looked at is the current user being iterated in loop.
+                    if (userEntry.getKey().compareTo(userNodeStart + currentEdgeUser) == 0){
+                        // P(A | B) = ( P(B | A) * P(A) ) / P(B)
+                        double probOfThisUserGivenThisSmileTo = (double) currentEdge.getTimes() / SmileEntry.getValue();
+                        double probOfThisSmileTo = (double) SmileEntry.getValue() / (double) totalDecisions;
+                        double probOfThisUser = (double) userEntry.getValue() / (double) totalDecisions;
+                        System.out.println("probOfThisUserGivenThisSmileTo: " + probOfThisUserGivenThisSmileTo);
+                        System.out.println("probOfThisSmileTo: " + probOfThisSmileTo);
+                        System.out.println("probOfThisUser: " + probOfThisUser);
+                        if (probOfThisUser != 1) {
+                            structureDefinition[defIndex] = (probOfThisUserGivenThisSmileTo * probOfThisSmileTo) / probOfThisUser;
+                        }else{
+                            structureDefinition[defIndex] = probOfThisSmileTo;
+                        }
+                        edgesIndex++;
+                    }
+                }
+                defIndex++;
             }
         }
         network.setNodeDefinition(structureNodeName, structureDefinition);
-    }
-
-    private void setUserNodeDef(Map<String, Long> userIdToTotalChoicesMade, long totalDecisions){
-        String[] userOutcomes = network.getOutcomeIds(userNodeName);
-        double[] userDefinition = new double[userOutcomes.length];
-        int i = 0;
-        for(String user: userOutcomes){
-            // The number of times a user has made a choice / total times a choice has been made.
-            userDefinition[i++] = (double) userIdToTotalChoicesMade.get(user) / (double) totalDecisions;
-        }
-        network.setNodeDefinition(userNodeName, userDefinition);
     }
 
     public List<SmilesToProb> generateBestChoices(){
