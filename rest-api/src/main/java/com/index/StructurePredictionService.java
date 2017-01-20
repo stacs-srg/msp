@@ -39,7 +39,8 @@ public class StructurePredictionService
             throw new UnsatisfiedLinkError("Can't Link RDKIT");
         }
 
-        StructureBayesianNetwork network = new StructureBayesianNetwork(smiles, userId, groupId, edgeMetadataRepo);
+        BayesianNetworkData data = new BayesianNetworkData(smiles, edgeMetadataRepo, userId, groupId);
+        StructureBayesianNetwork network = new StructureBayesianNetwork(data);
         List<Structure> structures = new ArrayList<>();
         for(SmilesToProb smilesTo : network.generateBestChoices()){
             structures.add(structureRepo.findOne(smilesTo.getSmilesTo()));

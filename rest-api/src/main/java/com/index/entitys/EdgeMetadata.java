@@ -42,6 +42,10 @@ public class EdgeMetadata {
         this.groupId = groupId;
     }
 
+    public EdgeMetadata(int userId, String smilesFrom, String smilesTo, int groupId){
+        this.edgeMetadataKey = new EdgeMetadataKey(userId, smilesFrom, smilesTo);
+        this.groupId = groupId;
+    }
 
     @PrePersist
     protected void onCreate() {
@@ -56,6 +60,30 @@ public class EdgeMetadata {
 
     public EdgeMetadataKey getEdgeMetadataKey() {
         return edgeMetadataKey;
+    }
+
+    public int getUserId() {
+        return edgeMetadataKey.getUserId();
+    }
+
+    public void setUserId(int userId) {
+       edgeMetadataKey.setUserId(userId);
+    }
+
+    public String getSmilesTo() {
+        return edgeMetadataKey.getSmilesTo();
+    }
+
+    public void setSmilesTo(String smilesTo) {
+        edgeMetadataKey.setSmilesTo(smilesTo);
+    }
+
+    public String getSmilesFrom() {
+        return edgeMetadataKey.getSmilesFrom();
+    }
+
+    public void setSmilesFrom(String smilesFrom) {
+        edgeMetadataKey.setSmilesFrom(smilesFrom);
     }
 
     public void setEdgeMetadataKey(EdgeMetadataKey edgeMetadataKey) {

@@ -46,5 +46,5 @@ public interface EdgeMetadataRepo extends JpaRepository<EdgeMetadata, EdgeMetada
             "FROM EdgeMetadata m " +
             "WHERE m.edgeMetadataKey.smilesFrom = ?1 " +
             "GROUP BY m.edgeMetadataKey.smilesFrom ")
-   long findBySmilesFromTotalRows(String smilesFrom);
+   Long findBySmilesFromTotalRows(String smilesFrom);
 }
