@@ -1,5 +1,6 @@
-package com.index;
+package com.index.bayesian;
 
+import com.index.bayesian.StructureBayesianNetwork;
 import com.index.entitys.EdgeMetadata;
 import com.index.repos.EdgeMetadataRepo;
 

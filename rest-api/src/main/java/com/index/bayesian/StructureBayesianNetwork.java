@@ -1,7 +1,6 @@
-package com.index;
+package com.index.bayesian;
 
 import com.index.entitys.EdgeMetadata;
-import com.index.repos.SmilesToProb;
 import smile.Network;
 
 import java.util.*;
@@ -30,7 +29,9 @@ public class StructureBayesianNetwork {
 
         // No choices to make currently OR
         // only one choice can be made that is the answer.
-        if (data.getTotalDecisions() == null || data.getTotalDecisions() == 0 || data.getSmilesToTotalPicks().size() == 1){
+        if (data.getTotalDecisions() == null
+                || data.getTotalDecisions() == 0
+                || data.getSmilesToTotalPicks().size() == 1){
             return;
         }
 
@@ -40,7 +41,7 @@ public class StructureBayesianNetwork {
 
         addOutcomesToNetwork();
         // || data.getUserIdTotalDecisions().get(data.getUserId()) == null
-        if(data.getUserIdTotalDecisions().size() == 1 ){
+        if(data.getUserIdTotalDecisions().size() == 1){
             // No need for user node as no choice to be made!
             network.deleteNode(userNodeName);
         }else{
@@ -91,10 +92,6 @@ public class StructureBayesianNetwork {
         int defIndex = 0;
         for (EdgeMetadata edge : edges) {
 
-            System.out.print("(2) smile From: " + edge.getEdgeMetadataKey().getSmilesFrom());
-            System.out.print(" smile To: " + edge.getEdgeMetadataKey().getSmilesTo());
-            System.out.println(" User: " + edge.getEdgeMetadataKey().getUserId());
-
             double smilesToTotalPicks = smilesTos.get(edge.getSmilesTo());
             double userTotalPicks = userIds.get(edge.getUserId());
 
@@ -102,10 +99,6 @@ public class StructureBayesianNetwork {
             double probOfThisUserGivenThisSmileTo = (double) edge.getTimes() / smilesToTotalPicks;
             double probOfThisSmileTo = smilesToTotalPicks / totalDecisions;
             double probOfThisUser = userTotalPicks / totalDecisions;
-
-            System.out.print("probOfThisSmileTo " + probOfThisSmileTo);
-            System.out.print(" probOfThisUserGivenThisSmileTo: " + probOfThisUserGivenThisSmileTo);
-            System.out.println(" probOfThisUser: " + probOfThisUser);
 
             if (probOfThisUser != 1) {
                 structureDefinition[defIndex] = (probOfThisUserGivenThisSmileTo * probOfThisSmileTo) / probOfThisUser;

@@ -1,9 +1,12 @@
 package com.index;
 
+import com.index.bayesian.BayesianNetworkData;
+import com.index.bayesian.SmilesToProb;
+import com.index.bayesian.StructureBayesianNetwork;
+import com.index.bayesian.StructurePrediction;
 import com.index.entitys.*;
 import com.index.repos.EdgeRepo;
 import com.index.repos.EdgeMetadataRepo;
-import com.index.repos.SmilesToProb;
 import com.index.repos.StructureRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,7 +33,7 @@ public class StructurePredictionService
         return new Response("Chemical Molecular Structure Prediction Tool");
     }
 
-    public Iterable<Structure> prediction(String smiles, int userId, int groupId){
+    public List<StructurePrediction> prediction(String smiles, int userId, int groupId){
 
         try {
             // TODO remove mols in database and replace with use RDKIT to generate.
@@ -41,11 +44,29 @@ public class StructurePredictionService
 
         BayesianNetworkData data = new BayesianNetworkData(smiles, edgeMetadataRepo, userId, groupId);
         StructureBayesianNetwork network = new StructureBayesianNetwork(data);
-        List<Structure> structures = new ArrayList<>();
+        List<StructurePrediction> structures = new ArrayList<>();
         for(SmilesToProb smilesTo : network.generateBestChoices()){
-            structures.add(structureRepo.findOne(smilesTo.getSmilesTo()));
+            List<String> path = getPath(smilesTo.getSmilesTo());
+            Structure endStructure = structureRepo.findOne(path.remove(path.size() - 1));
+            structures.add(new StructurePrediction(path, endStructure));
         }
         return structures;
+    }
+
+    private List<String> getPath(String smilesTo){
+
+        List<String> path = new ArrayList<>();
+        while (true){
+            path.add(smilesTo);
+            // TODO join on smilesFrom with structures to check end node.
+            List<Object[]> options = edgeMetadataRepo.findBySmilesFromAllSmilesToAndTotalTimesPicked(smilesTo);
+            if (options.size() == 1) {
+                smilesTo = (String) options.get(0)[0];
+            }else{
+                break;
+            }
+        }
+        return path;
     }
 
     public void addStructure(Structure[] path, int userId, int groupId){
