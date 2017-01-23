@@ -48,7 +48,8 @@ public class StructurePredictionService
         for(SmilesToProb smilesTo : network.generateBestChoices()){
             List<String> path = getPath(smilesTo.getSmilesTo());
             Structure endStructure = structureRepo.findOne(path.remove(path.size() - 1));
-            structures.add(new StructurePrediction(path, endStructure));
+            double prob = smilesTo.getProbability();
+            structures.add(new StructurePrediction(path, endStructure, prob));
         }
         return structures;
     }

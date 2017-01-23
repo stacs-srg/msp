@@ -157,6 +157,9 @@ var predictionIndex = -1;
             ignoreMouseEvents: true
         });
 
+        var header = $("#panel-" + panelNumber + "-footer");
+        header.text(prediction.probability);
+
         if (result){
              predictionMap[panelNumber] = prediction;
          }else{
@@ -170,6 +173,8 @@ var predictionIndex = -1;
         panel.empty();
         panel.parent().removeClass("active");
         predictionMap[panelNumber] = null;
+        var header = $("#panel-" + panelNumber + "-footer");
+        header.text("");
     }
 
     function setStructure(pannelId) {

@@ -10,13 +10,16 @@ import java.util.List;
  */
 public class StructurePrediction implements Serializable{
 
-    List<String> path;
+    private List<String> path;
 
-    Structure endStructure;
+    private Structure endStructure;
 
-    public StructurePrediction(List<String> path, Structure endStructure) {
+    private double probability;
+
+    public StructurePrediction(List<String> path, Structure endStructure, double probability) {
         this.path = path;
         this.endStructure = endStructure;
+        this.probability = probability;
     }
 
     public List<String> getPath() {
@@ -25,5 +28,9 @@ public class StructurePrediction implements Serializable{
 
     public Structure getEndStructure() {
         return endStructure;
+    }
+
+    public double getProbability() {
+        return probability;
     }
 }
