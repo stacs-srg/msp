@@ -1,4 +1,4 @@
-package com.index.repos;
+package com.index.bayesian;
 
 /**
  * Created by jaco1a on 11/01/17.

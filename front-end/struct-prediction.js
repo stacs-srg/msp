@@ -1,21 +1,35 @@
 var predictionMap = {};
 // initially nothing.
-var structurePath = [ { smiles : ""} ];
+var structurePath = [ { smiles : "" } ];
+var structurePathIndex = structurePath.length - 1;
+var predictionIndex = -1;
 
 ( function($) {
 
     $('#ketcherFrame').on('load', function () {   
         var ketcher = getKetcher();
         ketcher.onStructChange(function() {
-            var newStrut = { smiles: ketcher.getSmiles(), mol : ketcher.getMolfile() };
-            var lastStrut = structurePath[structurePath.length - 2];
-            // remove something if undo button was pressed.
-            var undo = (lastStrut && lastStrut.smiles == newStrut.smiles);
-            if (!undo){
-                structurePath.push(newStrut);
-            } else if (undo){
-                structurePath.pop();
+            var path = [];
+            if (predictionIndex != -1){
+                path = predictionMap[predictionIndex].path;
+                predictionIndex = -1;
             }
+            var newStrut = { "smiles": ketcher.getSmiles(), "mol": ketcher.getMolfile() , "path": path};
+            var pastStruct = structurePath[structurePathIndex - 1];
+            var futureStruct = structurePath[structurePathIndex + 1];
+
+            // Move back or forwards in the history if redo or undo.
+            var undo = (pastStruct && pastStruct.smiles == newStrut.smiles);
+            var redo = (futureStruct && futureStruct.smiles == newStrut.smiles);
+            if (!undo && !redo){
+                structurePathIndex++;
+                structurePath.splice(structurePathIndex, 0, newStrut);
+            } else if (undo){
+                structurePathIndex--;
+            }else if (redo){
+                structurePathIndex++;
+            }
+            console.log("full-struct path:", structurePath);
             requestPredictions(newStrut.smiles);
         });
     });
@@ -31,10 +45,6 @@ var structurePath = [ { smiles : ""} ];
         $('#searchBtn').click(function() {
             addStructure();
         });
-
-        $('#closeBtn').click(function(){
-            addStructure();
-        });
     });
 
     function getKetcher(){
@@ -45,7 +55,7 @@ var structurePath = [ { smiles : ""} ];
         else
             return null;
 
-        if ('window' in frame)            
+        if ('window' in frame)
             return frame.window.ketcher;
     }
 
@@ -61,7 +71,7 @@ var structurePath = [ { smiles : ""} ];
             
             success: function(response) {
                 requestPredictionSuccess(response);
-                console.log(response);
+                console.log("predictions: ", response);
             },
             
             error: function(xhr) {
@@ -71,9 +81,9 @@ var structurePath = [ { smiles : ""} ];
     }
 
     function addStructure(){
-        if (structurePath.length != 0){
+        if (structurePath.length != 1){
             var user = getMetadata();
-            structurePath.splice(0, 1);
+            structurePath = flattenStructurePath(structurePath, structurePathIndex);
             $.ajax({
                 url: "http://localhost:8080/add/structure/",
                 type: "post",
@@ -81,13 +91,42 @@ var structurePath = [ { smiles : ""} ];
                 contentType: "application/json",
                 headers: { userId: user.userId, groupId: user.groupId }, 
                 data: JSON.stringify( structurePath ),
+                success: function(){
+                    clearKetcher();   
+                },
                 error: function(xhr) {
                     console.log(xhr);
                 }
             });
-            structurePath.splice(0, 0, { smiles: "" })
         }
     }
+
+    function clearKetcher(){
+        var ketcher = getKetcher();
+        if(ketcher){
+            document.getElementById('ketcherFrame').src = document.getElementById('ketcherFrame').src;
+            structurePath = [ { smiles : "" } ];
+            structurePathIndex = structurePath.length - 1;
+        }
+    }
+
+    function flattenStructurePath(structurePath, structurePathIndex){
+        flatPath = [];
+        // i = 1, first empty structure not important
+        for(var i = 1; i <= structurePathIndex; i++){
+            // Add path inside structure to the flatpath.
+            var pathToStruct = structurePath[i].path;
+            if (pathToStruct){
+                for(var j = 0; j < pathToStruct.length; j++){
+                    flatPath.push( { "smiles" : pathToStruct[j] } );
+                }
+            }
+            flatPath.push(structurePath[i]);
+        }
+        console.log("flat Path: ", flatPath);
+        return flatPath;
+    }
+
 
     function requestPredictionSuccess(response){
         i = 0;
@@ -108,7 +147,7 @@ var structurePath = [ { smiles : ""} ];
         panel.empty();
         panel.parent().addClass("active");
 
-        var molfile = prediction.mol;
+        var molfile = prediction.endStructure.mol;
 
         var result = getKetcher().showMolfile($('<li>').appendTo(panel)[0], molfile, {
             bondLength: 20,
@@ -119,7 +158,7 @@ var structurePath = [ { smiles : ""} ];
         });
 
         if (result){
-             predictionMap[panelNumber] = molfile;
+             predictionMap[panelNumber] = prediction;
          }else{
              //TODO remove this alert to a better error message. 
              alert("error");
@@ -134,9 +173,12 @@ var structurePath = [ { smiles : ""} ];
     }
 
     function setStructure(pannelId) {
-        var molfile = predictionMap[pannelId];
+        var structure = predictionMap[pannelId];
+        var molfile = structure.endStructure.mol
         var ketcher = getKetcher();
         if (ketcher && molfile){
+            // prediction number picked.
+            predictionIndex = pannelId;
             ketcher.setMolecule(molfile);
         }
     }
