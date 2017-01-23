@@ -18,6 +18,12 @@
     user-select: none;
 }
 
+.prediction-panel > .panel-header {
+    height: 0px;
+    font-size: 12px;
+    text-align: center;
+}
+
 .prediction-panel {
     margin-bottom: 0px !important;
     border-radius: 0px !important;

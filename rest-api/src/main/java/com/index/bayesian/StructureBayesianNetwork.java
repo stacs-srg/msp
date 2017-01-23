@@ -121,7 +121,7 @@ public class StructureBayesianNetwork {
             return result;
         }else if(structNodeNameToSmiles.size() == 1){
             List<String> list = new ArrayList<>(structNodeNameToSmiles.values());
-            result.add(new SmilesToProb(list.get(0), 0));
+            result.add(new SmilesToProb(list.get(0), 1));
             return result;
         } else if (network.getNodeCount() > 1) {
             network.setEvidence(userNodeName, userNodeStart + data.getUserId());
