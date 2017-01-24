@@ -46,12 +46,14 @@ dependencies {
     //compile fileTree(dir: 'libs/jsmile_linux64/' , include: '*.jar')
     compile fileTree(dir: 'libs/jsmile_linux64', include: ['*.jar','*.so'])
 
-    compile files('libs/rdkit/Code/JavaWrappers/gmwrapper/org.RDKit.jar')
+    ///compile files('libs/rdkit/Code/JavaWrappers/gmwrapper/org.RDKit.jar')
 	compile group: 'org.hsqldb', name: 'hsqldb', version: '2.3.4'
 }
 /* importing the rdkit repo then to get required java wrapper out of it. Also requires swig 
-build-essential python-numpy cmake python-dev sqlite3 libsqlite3-dev libboost-dev libboost-system-dev libboost-thread-dev libboost-serialization-dev libboost-python-dev libboost-regex-dev
-*/
+build-essential python-numpy cmake python-dev sqlite3 libsqlite3-dev libboost-dev libboost-system-dev libboost-thread-dev libboost-serialization-dev libboost-python-dev libboost-regex-dev 
+
+NOT NEEDED YET.
+
 import org.ajoberstar.gradle.git.tasks.*
 
 task cloneRDKit(type: GitClone) {
@@ -75,22 +77,4 @@ buildRDKit.doLast(){
 build.dependsOn cloneRDKit
 build.dependsOn buildRDKit
 buildRDKit.dependsOn cloneRDKit
-
-//pack all so file into a jar and compile it
-task nativeLibsToJar(
-        type: Zip,
-        description: 'create a jar archive of the native libs') {
-    destinationDir file('libs/jsmile_linux64')
-    baseName 'native-libs'
-    extension 'jar'
-
-    from 'libs/jsmile_linux64'
-    include '**/*.so'
-    into 'libs/jsmile_linux64'
-}
-
-tasks.withType(JavaCompile) {
-    compileTask -> compileTask.dependsOn(nativeLibsToJar)
-}
-
-clean.dependsOn 'cleanNativeLibsToJar'
+*/

@@ -29,7 +29,10 @@ var predictionIndex = -1;
             }else if (redo){
                 structurePathIndex++;
             }
+            //TODO fix the backwards being placed in the wrong places. 
+            console.log("", structurePathIndex);
             console.log("full-struct path:", structurePath);
+            flattenStructurePath(structurePath, structurePathIndex);
             requestPredictions(newStrut.smiles);
         });
     });
@@ -92,7 +95,7 @@ var predictionIndex = -1;
                 headers: { userId: user.userId, groupId: user.groupId }, 
                 data: JSON.stringify( structurePath ),
                 success: function(){
-                    clearKetcher();   
+                    //clearKetcher();   
                 },
                 error: function(xhr) {
                     console.log(xhr);
@@ -101,7 +104,7 @@ var predictionIndex = -1;
         }
     }
 
-    function clearKetcher(){
+    function resetKetcher(){
         var ketcher = getKetcher();
         if(ketcher){
             document.getElementById('ketcherFrame').src = document.getElementById('ketcherFrame').src;

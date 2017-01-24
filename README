@@ -1,0 +1,23 @@
+----------------------
+How to Build & Run
+----------------------
+
+Move into the /rest-api from root and run: 
+	gradle build
+
+You know need to run download and run hsqldb. (The database script can be found in /rest-api/database.script)
+	download link:
+	https://sourceforge.net/projects/hsqldb/files/
+	run with: 
+	sudo java -cp hsqldb.jar org.hsqldb.Server -database.0 file:database.script -dbname.0 jacr_structure_prediction
+
+OR if you are inside the universtiy. you can change file /rest-api/application.properties to the properties with: 
+	spring.datasource.url=jdbc:mysql://jacr.host.cs.st-andrews.ac.uk/jacr_structure_prediction
+(Should be commented out.)
+
+To run the rest-api from command line run bash file /rest-api/run.sh
+
+To open the front end componenet run:
+	google-chrome --allow-file-access-from-files
+
+And open struct-predicion.html in that window.
