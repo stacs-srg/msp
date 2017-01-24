@@ -29,10 +29,10 @@ var predictionIndex = -1;
             }else if (redo){
                 structurePathIndex++;
             }
-            //TODO fix the backwards being placed in the wrong places. 
+            
             console.log("", structurePathIndex);
             console.log("full-struct path:", structurePath);
-            flattenStructurePath(structurePath, structurePathIndex);
+            console.log("flat Path: ", flattenStructurePath(structurePath, structurePathIndex));
             requestPredictions(newStrut.smiles);
         });
     });
@@ -46,7 +46,7 @@ var predictionIndex = -1;
         });
 
         $('#searchBtn').click(function() {
-            addStructure();
+            addStructure(structurePath);
         });
     });
 
@@ -83,17 +83,17 @@ var predictionIndex = -1;
         });
     }
 
-    function addStructure(){
+    function addStructure(structurePath){
         if (structurePath.length != 1){
             var user = getMetadata();
-            structurePath = flattenStructurePath(structurePath, structurePathIndex);
+            flatPath = flattenStructurePath(structurePath, structurePathIndex);
             $.ajax({
                 url: "http://localhost:8080/add/structure/",
                 type: "post",
                 datatype: "json",
                 contentType: "application/json",
                 headers: { userId: user.userId, groupId: user.groupId }, 
-                data: JSON.stringify( structurePath ),
+                data: JSON.stringify( flatPath ),
                 success: function(){
                     //clearKetcher();   
                 },
@@ -113,10 +113,10 @@ var predictionIndex = -1;
         }
     }
 
-    function flattenStructurePath(structurePath, structurePathIndex){
+    function flattenStructurePath(structurePath, index){
         flatPath = [];
         // i = 1, first empty structure not important
-        for(var i = 1; i <= structurePathIndex; i++){
+        for(var i = 1; i <= index; i++){
             // Add path inside structure to the flatpath.
             var pathToStruct = structurePath[i].path;
             if (pathToStruct){
@@ -126,7 +126,6 @@ var predictionIndex = -1;
             }
             flatPath.push(structurePath[i]);
         }
-        console.log("flat Path: ", flatPath);
         return flatPath;
     }
 
