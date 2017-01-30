@@ -41,18 +41,14 @@ dependencies {
     runtime("mysql:mysql-connector-java")
     compile("org.springframework.boot:spring-boot-starter-jdbc")
     compile ("org.springframework.boot:spring-boot-starter-web")
-    //compile files('libs/jsmile_linux64/smile.jar')
-    //compile all jar in libs folder
-    //compile fileTree(dir: 'libs/jsmile_linux64/' , include: '*.jar')
     compile fileTree(dir: 'libs/jsmile_linux64', include: ['*.jar','*.so'])
 
-    ///compile files('libs/rdkit/Code/JavaWrappers/gmwrapper/org.RDKit.jar')
+    compile files('libs/rdkit/Code/JavaWrappers/gmwrapper/org.RDKit.jar')
 	compile group: 'org.hsqldb', name: 'hsqldb', version: '2.3.4'
 }
 /* importing the rdkit repo then to get required java wrapper out of it. Also requires swig 
 build-essential python-numpy cmake python-dev sqlite3 libsqlite3-dev libboost-dev libboost-system-dev libboost-thread-dev libboost-serialization-dev libboost-python-dev libboost-regex-dev 
-
-NOT NEEDED YET.
+*/
 
 import org.ajoberstar.gradle.git.tasks.*
 
@@ -77,4 +73,4 @@ buildRDKit.doLast(){
 build.dependsOn cloneRDKit
 build.dependsOn buildRDKit
 buildRDKit.dependsOn cloneRDKit
-*/
+

@@ -8,6 +8,7 @@ import com.index.entitys.*;
 import com.index.repos.EdgeRepo;
 import com.index.repos.EdgeMetadataRepo;
 import com.index.repos.StructureRepo;
+import org.RDKit.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -36,10 +37,13 @@ public class StructurePredictionService
     public List<StructurePrediction> prediction(String smiles, int userId, int groupId){
 
         try {
-            // TODO remove mols in database and replace with use RDKIT to generate.
-            //System.load(System.getenv("HOME") + "/cs4099/structure-predicition-sh/rest-api/libs/rdkit/Code/JavaWrappers/gmwrapper/libGraphMolWrap.so");
+            System.load(System.getProperty("user.dir") + "/libs/rdkit/Code/JavaWrappers/gmwrapper/libGraphMolWrap.so");
         }catch (UnsatisfiedLinkError e){
             throw new UnsatisfiedLinkError("Can't Link RDKIT");
+        }
+        if (smiles.length() != 0) {
+            String mol = generateMolString(RWMol.MolFromSmiles(smiles));
+            System.out.println(mol);
         }
 
         BayesianNetworkData data = new BayesianNetworkData(smiles, edgeMetadataRepo, userId, groupId);
@@ -68,6 +72,21 @@ public class StructurePredictionService
             }
         }
         return path;
+    }
+
+    private String generateMolString(RWMol mol){
+        if (mol != null) {
+            mol.compute2DCoords();
+            String[] splitMol = mol.MolToMolBlock().split("\n");
+
+            StringBuilder builder = new StringBuilder();
+            for (int i = 2; i < splitMol.length; i++) {
+                builder.append(splitMol[i]);
+                builder.append("\n");
+            }
+            return builder.toString();
+        }
+        return "";
     }
 
     public void addStructure(Structure[] path, int userId, int groupId){
