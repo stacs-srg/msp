@@ -30,9 +30,10 @@ var predictionIndex = -1;
                 structurePathIndex++;
             }
             
-            console.log("", structurePathIndex);
-            console.log("full-struct path:", structurePath);
-            console.log("flat Path: ", flattenStructurePath(structurePath, structurePathIndex));
+            // console.log("", structurePathIndex);
+            // console.log("full-struct path:", structurePath);
+            // console.log("flat Path: ", flattenStructurePath(structurePath, structurePathIndex));
+            console.log(ketcher.getMolfile());
             requestPredictions(newStrut.smiles);
         });
     });
@@ -45,8 +46,8 @@ var predictionIndex = -1;
             setStructure($(this).data("panel-id"))
         });
 
-        $('#searchBtn').click(function() {
-            addStructure(structurePath);
+        $('#saveBtn').click(function() {
+            saveStructure(structurePath);
         });
     });
 
@@ -83,7 +84,7 @@ var predictionIndex = -1;
         });
     }
 
-    function addStructure(structurePath){
+    function saveStructure(structurePath){
         if (structurePath.length != 1){
             var user = getMetadata();
             flatPath = flattenStructurePath(structurePath, structurePathIndex);
@@ -95,7 +96,7 @@ var predictionIndex = -1;
                 headers: { userId: user.userId, groupId: user.groupId }, 
                 data: JSON.stringify( flatPath ),
                 success: function(){
-                    //clearKetcher();   
+                    resetKetcher();   
                 },
                 error: function(xhr) {
                     console.log(xhr);
