@@ -30,10 +30,9 @@ var predictionIndex = -1;
                 structurePathIndex++;
             }
             
-            // console.log("", structurePathIndex);
-            // console.log("full-struct path:", structurePath);
-            // console.log("flat Path: ", flattenStructurePath(structurePath, structurePathIndex));
-            console.log(ketcher.getMolfile());
+            console.log("", structurePathIndex);
+            console.log("full-struct path:", structurePath);
+            console.log("flat Path: ", flattenStructurePath(structurePath, structurePathIndex));
             requestPredictions(newStrut.smiles);
         });
     });

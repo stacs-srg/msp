@@ -36,16 +36,6 @@ public class StructurePredictionService
 
     public List<StructurePrediction> prediction(String smiles, int userId, int groupId){
 
-        try {
-            System.load(System.getProperty("user.dir") + "/libs/rdkit/Code/JavaWrappers/gmwrapper/libGraphMolWrap.so");
-        }catch (UnsatisfiedLinkError e){
-            throw new UnsatisfiedLinkError("Can't Link RDKIT");
-        }
-        if (smiles.length() != 0) {
-            String mol = generateMolString(RWMol.MolFromSmiles(smiles));
-            System.out.println(mol);
-        }
-
         BayesianNetworkData data = new BayesianNetworkData(smiles, edgeMetadataRepo, userId, groupId);
         StructureBayesianNetwork network = new StructureBayesianNetwork(data);
         List<StructurePrediction> structures = new ArrayList<>();
@@ -72,21 +62,6 @@ public class StructurePredictionService
             }
         }
         return path;
-    }
-
-    private String generateMolString(RWMol mol){
-        if (mol != null) {
-            mol.compute2DCoords();
-            String[] splitMol = mol.MolToMolBlock().split("\n");
-
-            StringBuilder builder = new StringBuilder();
-            for (int i = 2; i < splitMol.length; i++) {
-                builder.append(splitMol[i]);
-                builder.append("\n");
-            }
-            return builder.toString();
-        }
-        return "";
     }
 
     public void addStructure(Structure[] path, int userId, int groupId){
