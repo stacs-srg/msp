@@ -2,6 +2,7 @@ package com.index.repos;
 
 import com.index.entitys.EdgeMetadata;
 import com.index.entitys.EdgeMetadataKey;
+import com.index.entitys.Structure;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -46,5 +47,12 @@ public interface EdgeMetadataRepo extends JpaRepository<EdgeMetadata, EdgeMetada
             "FROM EdgeMetadata m " +
             "WHERE m.edgeMetadataKey.smilesFrom = ?1 " +
             "GROUP BY m.edgeMetadataKey.smilesFrom ")
-   Long findBySmilesFromTotalRows(String smilesFrom);
+    Long findBySmilesFromTotalRows(String smilesFrom);
+
+    @Query("SELECT DISTINCT m.toStructure " +
+            "FROM EdgeMetadata m " +
+            "WHERE m.edgeMetadataKey.smilesFrom = ?1")
+    List<Structure> findBySmilesFromAllSmilesToStructures(String smilesFrom);
+
+
 }

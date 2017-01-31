@@ -49,16 +49,20 @@ public class StructurePredictionService
     }
 
     private List<String> getPath(String smilesTo){
-
         List<String> path = new ArrayList<>();
-        while (true){
-            path.add(smilesTo);
-            // TODO join on smilesFrom with structures to check end node.
-            List<Object[]> options = edgeMetadataRepo.findBySmilesFromAllSmilesToAndTotalTimesPicked(smilesTo);
-            if (options.size() == 1) {
-                smilesTo = (String) options.get(0)[0];
-            }else{
-                break;
+        Structure structure = structureRepo.findOne(smilesTo);
+        boolean loop = true;
+        while (loop){
+            loop = false;
+            path.add(structure.getSmiles());
+            // structure not at end.
+            if (structure.getEnd() == 0) {
+                List<Structure> options = edgeMetadataRepo.findBySmilesFromAllSmilesToStructures(structure.getSmiles());
+                // only one path it can go from here.
+                if (options.size() == 1) {
+                    structure = options.get(0);
+                    loop = true;
+                }
             }
         }
         return path;
@@ -66,9 +70,15 @@ public class StructurePredictionService
 
     public void addStructure(Structure[] path, int userId, int groupId){
         path[path.length - 1].setEnd(1);
-        structureRepo.save(path[0]);
+
+        if(!structureRepo.exists(path[0].getSmiles())) {
+            structureRepo.save(path[0]);
+        }
+        
         for(int i = 1; i < path.length; i++){
-            structureRepo.save(path[i]);
+            if(!structureRepo.exists(path[i].getSmiles())){
+                structureRepo.save(path[i]);
+            }
             addEdge(path[i - 1].getSmiles(), path[i].getSmiles(), userId, groupId);
         }
     }

@@ -30,7 +30,7 @@ var predictionIndex = -1;
                 structurePathIndex++;
             }
             
-            console.log("", structurePathIndex);
+            console.log("index", structurePathIndex);
             console.log("full-struct path:", structurePath);
             console.log("flat Path: ", flattenStructurePath(structurePath, structurePathIndex));
             requestPredictions(newStrut.smiles);
@@ -110,6 +110,7 @@ var predictionIndex = -1;
             document.getElementById('ketcherFrame').src = document.getElementById('ketcherFrame').src;
             structurePath = [ { smiles : "" } ];
             structurePathIndex = structurePath.length - 1;
+            resetNumberOfPanels(0);
         }
     }
 
@@ -137,10 +138,14 @@ var predictionIndex = -1;
             addPrediction(i, response[i]);
             i++;
         }
+        resetNumberOfPanels(i);
+    }
+
+    function resetNumberOfPanels(i){
         while(i < 4){
             restPanel(i);
             i++;
-        }
+        } 
     }
 
     function addPrediction(panelNumber, prediction){

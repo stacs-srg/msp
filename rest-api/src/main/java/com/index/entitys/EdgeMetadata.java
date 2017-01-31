@@ -33,6 +33,11 @@ public class EdgeMetadata {
     })
     private Edge edge;
 
+    @ManyToOne
+    @JoinColumn(name = "smiles_to",
+            referencedColumnName = "smiles", insertable=false, updatable=false)
+    private Structure toStructure;
+
     public EdgeMetadata() {
 
     }
