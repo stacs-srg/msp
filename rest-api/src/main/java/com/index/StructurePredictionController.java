@@ -25,7 +25,8 @@ public class StructurePredictionController
     @CrossOrigin
     @RequestMapping(method=GET, path="/prediction")
     public List<StructurePrediction> predict(@RequestParam String smiles, @RequestHeader int userId, @RequestHeader int groupId) {
-        return service.prediction(smiles, userId, groupId);
+        System.out.println("Prediction called. Smile: " + smiles);
+	    return service.prediction(smiles, userId, groupId);
     }
 
     @CrossOrigin

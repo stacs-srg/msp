@@ -1,3 +1,6 @@
+// var hostAddress = "http://localhost:8080";
+var hostAddress = "https://jacr.host.cs.st-andrews.ac.uk:8080"
+
 var predictionMap = {};
 // initially nothing.
 var structurePath = [ { smiles : "" } ];
@@ -65,10 +68,10 @@ var predictionIndex = -1;
     function requestPredictions(smiles){
         var user = getMetadata();
         $.ajax({
-            url: "http://localhost:8080/prediction",
+            url: hostAddress + "/prediction",
             type: "get",
             datatype: "json",
-            contentType: "application/json",
+            contentType: "application/json; charset=utf-8",
             headers: { userId: user.userId, groupId: user.groupId }, 
             data:{"smiles": smiles},
             
@@ -88,10 +91,10 @@ var predictionIndex = -1;
             var user = getMetadata();
             flatPath = flattenStructurePath(structurePath, structurePathIndex);
             $.ajax({
-                url: "http://localhost:8080/add/structure/",
+                url:  hostAddress + "/add/structure/",
                 type: "post",
                 datatype: "json",
-                contentType: "application/json",
+                contentType: "application/json; charset=utf-8",
                 headers: { userId: user.userId, groupId: user.groupId }, 
                 data: JSON.stringify( flatPath ),
                 success: function(){
