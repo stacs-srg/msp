@@ -7,13 +7,14 @@ buildscript
     dependencies
     {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:1.4.1.RELEASE")
-	classpath("org.ajoberstar:gradle-git:0.2.3")
+		classpath("org.ajoberstar:gradle-git:0.2.3")
     }
 }
 
 apply plugin: 'java'
 apply plugin: 'idea'
 apply plugin: 'spring-boot'
+apply plugin: 'war'
 
 jar
 {
@@ -42,6 +43,8 @@ dependencies {
     compile("org.springframework.boot:spring-boot-starter-jdbc")
     compile ("org.springframework.boot:spring-boot-starter-web")
     compile fileTree(dir: 'libs/jsmile_linux64', include: ['*.jar','*.so'])
+	
+	providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
 
 	compile group: 'org.hsqldb', name: 'hsqldb', version: '2.3.4'
 }
