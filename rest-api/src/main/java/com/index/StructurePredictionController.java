@@ -16,7 +16,7 @@ public class StructurePredictionController
     @Autowired
     private StructurePredictionService service;
 
-    @RequestMapping("/")
+    @RequestMapping(method=GET, path="/")
     public Response respond()
     {
         return service.createResponse();
