@@ -1,0 +1,2 @@
+nohup bash run.sh &
+
