@@ -1,5 +1,5 @@
-//var hostAddress = "https://localhost:8080";
-var hostAddress = "https://jacr.host.cs.st-andrews.ac.uk/structure-prediction"
+var hostAddress = "http://localhost:17938";
+//var hostAddress = "https://jacr.host.cs.st-andrews.ac.uk/structure-prediction/"
 
 var predictionMap = {};
 // initially nothing.
