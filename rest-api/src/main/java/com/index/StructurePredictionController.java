@@ -5,6 +5,7 @@ import com.index.entitys.Structure;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
@@ -32,7 +33,7 @@ public class StructurePredictionController
 
     @CrossOrigin
     @RequestMapping(method=POST, path="/add/structure")
-    public void addStrucutre(@RequestBody Structure[] path, @RequestHeader int userId, @RequestHeader int groupId){
+    public void addStrucutre(@RequestBody ArrayList<Structure> path, @RequestHeader int userId, @RequestHeader int groupId){
         service.addStructure(path, userId, groupId);
     }
 }

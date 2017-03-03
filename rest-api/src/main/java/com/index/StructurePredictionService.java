@@ -11,6 +11,7 @@ import com.index.repos.StructureRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,7 +58,7 @@ public class StructurePredictionService
             // structure not at end.
             if (structure.getEnd() == 0) {
                 List<Structure> options = edgeMetadataRepo.findBySmilesFromAllSmilesToStructures(structure.getSmiles());
-                // only one path it can go from here.
+                // If there is only one option then carry on through.
                 if (options.size() == 1) {
                     structure = options.get(0);
                     loop = true;
@@ -67,20 +68,44 @@ public class StructurePredictionService
         return path;
     }
 
-    public void addStructure(Structure[] path, int userId, int groupId){
-        path[path.length - 1].setEnd(1);
+    public void addStructure(ArrayList<Structure> path, int userId, int groupId){
 
-        if(!structureRepo.exists(path[0].getSmiles())) {
-            structureRepo.save(path[0]);
+        cleanPath(path);
+        //Set end of the path to an end structure.
+        path.get(path.size() - 1).setEnd(1);
+
+        if(!structureRepo.exists(path.get(0).getSmiles())) {
+            structureRepo.save(path.get(0));
         }
         
-        for(int i = 1; i < path.length; i++){
-            if(!structureRepo.exists(path[i].getSmiles())){
-                structureRepo.save(path[i]);
+        for(int i = 1; i < path.size(); i++){
+            if(!structureRepo.exists(path.get(i).getSmiles())){
+                structureRepo.save(path.get(i));
             }
-            addEdge(path[i - 1].getSmiles(), path[i].getSmiles(), userId, groupId);
+            addEdge(path.get(i - 1).getSmiles(), path.get(i).getSmiles(), userId, groupId);
         }
     }
+
+    public ArrayList<Structure> cleanPath(ArrayList<Structure> path){
+
+        int index = 0;
+
+        while (index < path.size() - 1) {
+            // Path has an edge to itself. Should not be allowed.
+            if (path.get(index).getSmiles().compareTo(path.get(index + 1).getSmiles()) == 0) {
+                path.remove(index + 1);
+            } else if (index < path.size() - 2 &&
+                    path.get(index).getSmiles().compareTo(path.get(index + 2).getSmiles()) == 0){
+                // Undo or redo on the path.
+                path.remove(index + 1);
+                path.remove(index + 1);
+            } else {
+                index++;
+            }
+        }
+        return path;
+    }
+
 
     private void addEdge(String from, String to, int userId, int groupId){
         edgeRepo.save(new Edge(from, to));
