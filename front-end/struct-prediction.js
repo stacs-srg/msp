@@ -1,5 +1,5 @@
-var hostAddress = "http://localhost:17938/structure-prediction";
-//var hostAddress = "https://jacr.host.cs.st-andrews.ac.uk/structure-prediction"
+//var hostAddress = "http://localhost:17938/structure-prediction";
+var hostAddress = "https://jacr.host.cs.st-andrews.ac.uk/structure-prediction"
 
 var predictionMap = {};
 // initially nothing.
@@ -245,3 +245,4 @@ var predictionIndex = -1;
     }
 
 } ) ( jQuery );
+
