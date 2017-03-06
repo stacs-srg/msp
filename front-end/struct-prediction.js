@@ -1,5 +1,5 @@
-var hostAddress = "http://localhost:17938";
-//var hostAddress = "https://jacr.host.cs.st-andrews.ac.uk/structure-prediction/"
+var hostAddress = "http://localhost:17938/structure-prediction";
+//var hostAddress = "https://jacr.host.cs.st-andrews.ac.uk/structure-prediction"
 
 var predictionMap = {};
 // initially nothing.
@@ -51,6 +51,10 @@ var predictionIndex = -1;
         $('#saveBtn').click(function() {
             saveStructure(structurePath);
         });
+
+        $('#cleanBtn').click(function(){
+            getMolfileForSmiles(true);
+        });
     });
 
     function getKetcher(){
@@ -91,7 +95,7 @@ var predictionIndex = -1;
             var user = getMetadata();
             flatPath = flattenStructurePath(structurePath, structurePathIndex);
             $.ajax({
-                url:  hostAddress + "/add/structure/",
+                url:  hostAddress + "/add/structure",
                 type: "post",
                 datatype: "json",
                 contentType: "application/json; charset=utf-8",
@@ -107,7 +111,44 @@ var predictionIndex = -1;
         }
     }
 
-    function resetKetcher(){
+
+    function getMolfileForSmiles(repeat){
+        var ketcher = getKetcher();
+        if (ketcher){
+            var smiles = ketcher.getSmiles();
+            if (smiles.length > 0){
+                $.ajax({
+                    url:  hostAddress + "/generate/molfile",
+                    type: "get",
+                    datatype: "json",
+                    contentType: "application/json; charset=utf-8",
+                    headers: {  }, 
+                    data: { "smiles": smiles },
+                    success: function(response){
+                        getMoflieOnSuccess(response, false);
+                    },
+                    error: function(xhr) {
+                        console.log(xhr);
+                    }
+                });
+            }
+        }
+    }
+
+    function getMoflieOnSuccess(response, repeat){
+        var ketcher = getKetcher();
+        if (ketcher){
+            var molfile = response;
+            var start = "Ketcher 01301715232D 1   1.00000     0.00000     0\n\n";
+            molfile = start + molfile;
+            ketcher.setMolecule(molfile);
+            if (repeat){
+                getMolfileForSmiles(false);
+            }
+        }
+    }
+
+    function resetKetcher(times){
         var ketcher = getKetcher();
         if(ketcher){
             document.getElementById('ketcherFrame').src = document.getElementById('ketcherFrame').src;

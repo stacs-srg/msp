@@ -36,4 +36,10 @@ public class StructurePredictionController
     public void addStrucutre(@RequestBody ArrayList<Structure> path, @RequestHeader int userId, @RequestHeader int groupId){
         service.addStructure(path, userId, groupId);
     }
+
+    @CrossOrigin
+    @RequestMapping(method=GET, path="/generate/molfile")
+    public String cleanStrucutre(@RequestParam String smiles){
+        return service.generateSmiles(smiles);
+    }
 }
