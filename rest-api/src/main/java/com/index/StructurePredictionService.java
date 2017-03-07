@@ -8,10 +8,12 @@ import com.index.entitys.*;
 import com.index.repos.EdgeRepo;
 import com.index.repos.EdgeMetadataRepo;
 import com.index.repos.StructureRepo;
+import com.index.repos.StudyDataRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.RDKit.*;
@@ -28,6 +30,9 @@ public class StructurePredictionService
 
     @Autowired
     private EdgeRepo edgeRepo;
+
+    @Autowired
+    private StudyDataRepo studyRepo;
 
     public Response createResponse()
     {
@@ -68,11 +73,12 @@ public class StructurePredictionService
         return path;
     }
 
-    public void addStructure(ArrayList<Structure> path, int userId, int groupId){
+    public Structure addStructure(ArrayList<Structure> path, int userId, int groupId){
 
         cleanPath(path);
         //Set end of the path to an end structure.
-        path.get(path.size() - 1).setEnd(1);
+        Structure end = path.get(path.size() - 1);
+        end.setEnd(1);
 
         if(!structureRepo.exists(path.get(0).getSmiles())) {
             structureRepo.save(path.get(0));
@@ -84,6 +90,7 @@ public class StructurePredictionService
             }
             addEdge(path.get(i - 1).getSmiles(), path.get(i).getSmiles(), userId, groupId);
         }
+        return end;
     }
 
     public ArrayList<Structure> cleanPath(ArrayList<Structure> path){
@@ -142,6 +149,11 @@ public class StructurePredictionService
             return builder.toString();
         }
         return "";
+    }
+
+
+    public void addStudyData(Structure endStructure, Date startTime, int userId, int undos){
+        studyRepo.save(new StudyData(startTime, new Date(), endStructure.getSmiles(), userId, undos));
     }
 
 }
