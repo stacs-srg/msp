@@ -43,10 +43,12 @@ dependencies {
     compile("org.springframework.boot:spring-boot-starter-jdbc")
 
     compile("org.springframework.boot:spring-boot-starter-web")
-    	//exclude module: "spring-boot-starter-tomcat"
+    //exclude module: "spring-boot-starter-tomcat"
     
    //compile("org.springframework.boot:spring-boot-starter-jetty")
-	
+
+    compile files('libs/rdkit/Code/JavaWrappers/gmwrapper/org.RDKit.jar')
+
     compile fileTree(dir: 'libs/jsmile_linux64', include: ['*.jar','*.so'])
     compile group: 'org.hsqldb', name: 'hsqldb', version: '2.3.4'
 }

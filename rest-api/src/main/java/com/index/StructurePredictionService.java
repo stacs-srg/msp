@@ -11,10 +11,10 @@ import com.index.repos.StructureRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.RDKit.*;
 
 @Service
 public class StructurePredictionService
@@ -117,4 +117,31 @@ public class StructurePredictionService
             edgeMetadataRepo.save(new EdgeMetadata(userKey, groupId));
         }
     }
+
+    public String generateSmiles(String smiles){
+        try {
+            System.load(System.getProperty("user.dir") + "/libs/rdkit/Code/JavaWrappers/gmwrapper/libGraphMolWrap.so");
+        }catch (UnsatisfiedLinkError e){
+            throw new UnsatisfiedLinkError("Can't Link RDKIT");
+        }
+
+        String molfile = generateMolString(RWMol.MolFromSmiles(smiles));
+        return molfile;
+    }
+
+    private String generateMolString(RWMol mol){
+        if (mol != null) {
+            mol.compute2DCoords();
+            String[] splitMol = mol.MolToMolBlock(true).split("\n");
+
+            StringBuilder builder = new StringBuilder();
+            for (int i = 2; i < splitMol.length; i++) {
+                builder.append(splitMol[i]);
+                builder.append("\n");
+            }
+            return builder.toString();
+        }
+        return "";
+    }
+
 }
