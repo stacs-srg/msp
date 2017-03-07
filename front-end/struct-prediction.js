@@ -36,7 +36,7 @@ var predictionIndex = -1;
             console.log("index", structurePathIndex);
             console.log("full-struct path:", structurePath);
             console.log("flat Path: ", flattenStructurePath(structurePath, structurePathIndex));
-            requestPredictions(newStrut.smiles);
+            //requestPredictions(newStrut.smiles);
         });
     });
 
