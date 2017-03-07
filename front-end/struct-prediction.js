@@ -1,11 +1,15 @@
-//var hostAddress = "http://localhost:17938/structure-prediction";
-var hostAddress = "https://jacr.host.cs.st-andrews.ac.uk/structure-prediction"
+var hostAddress = "http://localhost:17938/structure-prediction";
+//var hostAddress = "https://jacr.host.cs.st-andrews.ac.uk/structure-prediction"
+
+var dateFormat = "YYYY-MM-DD HH:mm:ss:SSS";
 
 var predictionMap = {};
 // initially nothing.
 var structurePath = [ { smiles : "" } ];
 var structurePathIndex = structurePath.length - 1;
 var predictionIndex = -1;
+var startTime = null;
+var undos = 0;
 
 ( function($) {
 
@@ -28,6 +32,7 @@ var predictionIndex = -1;
                 structurePathIndex++;
                 structurePath.splice(structurePathIndex, 0, newStrut);
             } else if (undo){
+                undos++;
                 structurePathIndex--;
             }else if (redo){
                 structurePathIndex++;
@@ -42,18 +47,28 @@ var predictionIndex = -1;
 
     $( document ).ready(function() {
         
-        $('#drawStructureModal').modal('show');
+        //$('#drawStructureModal').modal('show');
 
         $('.prediction-panel').click(function() {
             setStructure($(this).data("panel-id"))
         });
 
         $('#saveBtn').click(function() {
-            saveStructure(structurePath);
+            saveStructureStudy(structurePath);
+            //saveStructure(structurePath);
         });
 
         $('#cleanBtn').click(function(){
             getMolfileForSmiles(true);
+        });
+
+        // For Study, sets startTime of drawing, and initalization of errors.
+        $('#drawStrucutre').click(function(){
+            if (startTime == null){
+                startTime = moment().format(dateFormat);
+                console.log("startTime:", startTime);
+                undos = 0;
+            }
         });
     });
 
@@ -91,6 +106,7 @@ var predictionIndex = -1;
     }
 
     function saveStructure(structurePath){
+        startTime = null;
         if (structurePath.length != 1){
             var user = getMetadata();
             flatPath = flattenStructurePath(structurePath, structurePathIndex);
@@ -99,7 +115,7 @@ var predictionIndex = -1;
                 type: "post",
                 datatype: "json",
                 contentType: "application/json; charset=utf-8",
-                headers: { userId: user.userId, groupId: user.groupId }, 
+                headers: { userId: user.userId, groupId: user.groupId}, 
                 data: JSON.stringify( flatPath ),
                 success: function(){
                     resetKetcher();   
@@ -109,6 +125,29 @@ var predictionIndex = -1;
                 }
             });
         }
+    }
+
+
+    function saveStructureStudy(structurePath){
+        if (structurePath.length != 1){
+            var user = getMetadata();
+            flatPath = flattenStructurePath(structurePath, structurePathIndex);
+            $.ajax({
+                url:  hostAddress + "/add/structure/study",
+                type: "post",
+                datatype: "json",
+                contentType: "application/json; charset=utf-8",
+                headers: { userId: user.userId, groupId: user.groupId, undos: undos, startTime: startTime }, 
+                data: JSON.stringify( flatPath ),
+                success: function(){
+                    resetKetcher();   
+                },
+                error: function(xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+        startTime = null;
     }
 
 
