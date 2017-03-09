@@ -11,6 +11,9 @@ var predictionIndex = -1;
 var startTime = null;
 var undos = 0;
 
+var numberOfStructsToDraw = 10;
+var numOfStructs = 0;
+
 ( function($) {
 
     $('#ketcherFrame').on('load', function () {   
@@ -140,7 +143,8 @@ var undos = 0;
                 headers: { userId: user.userId, groupId: user.groupId, undos: undos, startTime: startTime }, 
                 data: JSON.stringify( flatPath ),
                 success: function(){
-                    resetKetcher();   
+                    resetKetcher();
+                    numberOfStructsDrawn();
                 },
                 error: function(xhr) {
                     console.log(xhr);
@@ -281,6 +285,14 @@ var undos = 0;
     function getMetadata(){
         var array = $('#metadataForm').serializeArray();
         return { userId : array[0].value, groupId : array[1].value};
+    }
+
+    function numberOfStructsDrawn(){
+        $("#numOfStruts").text("Structures Drawn: " + ++numOfStructs);
+        if (numOfStructs == numberOfStructsToDraw){
+            $("#information").text("Thank you for completing this study.");
+            $("#drawStrucutre").prop('disabled', true);
+        }
     }
 
 } ) ( jQuery );
