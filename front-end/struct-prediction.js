@@ -23,6 +23,10 @@ var predictionsOn = false;
     $('#ketcherFrame').on('load', function () {   
         var ketcher = getKetcher();
         ketcher.onStructChange(function() {
+
+            console.log(isStudy);
+            console.log(predictionsOn);
+
             var path = [];
             if (predictionIndex != -1){
                 path = predictionMap[predictionIndex].path;
@@ -48,7 +52,7 @@ var predictionsOn = false;
             console.log("index", structurePathIndex);
             console.log("full-struct path:", structurePath);
             console.log("flat Path: ", flattenStructurePath(structurePath, structurePathIndex));
-            if (predictionsOn){
+            if (predictionsOn == "true"){
                 requestPredictions(newStrut.smiles);
             }
         });
@@ -56,9 +60,9 @@ var predictionsOn = false;
 
     $( document ).ready(function() {
         
-        isStudy = $('#isStudy').text();
-
-        predictionsOn = $('#predictionsOn').text();
+        // Get custom values.
+        isStudy = $('#isStudy').attr("value");
+        predictionsOn = $('#predictionsOn').attr("value");
 
         $('.prediction-panel').click(function() {
             predictionsOn++;
@@ -66,7 +70,7 @@ var predictionsOn = false;
         });
 
         $('#saveBtn').click(function() {
-            if(isStudy){
+            if(isStudy == "true"){
                 saveStructureStudy(structurePath);
             }else{
                 saveStructure(structurePath);
@@ -301,7 +305,7 @@ var predictionsOn = false;
 
     function numberOfStructsDrawn(){
         $("#numOfStruts").text("Structures Drawn: " + ++numOfStructs);
-        if (numOfStructs == numberOfStructsToDraw && isStudy){
+        if (numOfStructs == numberOfStructsToDraw && isStudy == "true"){
             $("#information").text("Thank you for completing this study.");
             $("#drawStrucutre").prop('disabled', true);
         }
