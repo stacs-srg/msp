@@ -309,3 +309,4 @@ var predictionsOn = false;
 
 } ) ( jQuery );
 
+
