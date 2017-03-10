@@ -13,6 +13,7 @@ var undos = 0;
 
 var numberOfStructsToDraw = 10;
 var numOfStructs = 0;
+var numOfPredictionsClicked = 0;
 
 var isStudy = false;
 var predictionsOn = false;
@@ -60,6 +61,7 @@ var predictionsOn = false;
         predictionsOn = $('#predictionsOn').text();
 
         $('.prediction-panel').click(function() {
+            predictionsOn++;
             setStructure($(this).data("panel-id"))
         });
 
