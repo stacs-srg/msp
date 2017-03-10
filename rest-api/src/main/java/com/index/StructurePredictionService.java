@@ -153,7 +153,7 @@ public class StructurePredictionService
 
 
     public void addStudyData(Structure endStructure, Date startTime, int userId, int undos){
-        studyRepo.save(new StudyData(startTime, new Date(), endStructure.getSmiles(), userId, undos));
+        studyRepo.save(new StudyData(startTime, new Date(), userId,  endStructure.getSmiles(), undos, 0, null));
     }
 
 }

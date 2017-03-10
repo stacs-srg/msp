@@ -26,17 +26,25 @@ public class StudyData {
     @Column(name = "undos")
     private int undos;
 
+    @Column(name = "rubs")
+    private int rubs;
+
+    @Column(name = "predictions_used")
+    private Integer predictionsUsed;
+
 
     public StudyData(){
 
     }
 
-    public StudyData(Date startTime, Date endTime, String smiles, int userId, int undos) {
+    public StudyData(Date startTime, Date endTime, int userId, String smiles, int undos, int rubs, Integer predictionsUsed) {
         this.startTime = startTime;
         this.endTime = endTime;
         this.userId = userId;
         this.smiles = smiles;
         this.undos = undos;
+        this.rubs = rubs;
+        this.predictionsUsed = predictionsUsed;
     }
 
     public Date getStartTime() {
