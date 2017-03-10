@@ -14,6 +14,9 @@ var undos = 0;
 var numberOfStructsToDraw = 10;
 var numOfStructs = 0;
 
+var isStudy = false;
+var predictionsOn = false;
+
 ( function($) {
 
     $('#ketcherFrame').on('load', function () {   
@@ -44,21 +47,28 @@ var numOfStructs = 0;
             console.log("index", structurePathIndex);
             console.log("full-struct path:", structurePath);
             console.log("flat Path: ", flattenStructurePath(structurePath, structurePathIndex));
-            //requestPredictions(newStrut.smiles);
+            if (predictionsOn){
+                requestPredictions(newStrut.smiles);
+            }
         });
     });
 
     $( document ).ready(function() {
         
-        //$('#drawStructureModal').modal('show');
+        isStudy = $('#isStudy').text();
+
+        predictionsOn = $('#predictionsOn').text();
 
         $('.prediction-panel').click(function() {
             setStructure($(this).data("panel-id"))
         });
 
         $('#saveBtn').click(function() {
-            saveStructureStudy(structurePath);
-            //saveStructure(structurePath);
+            if(isStudy){
+                saveStructureStudy(structurePath);
+            }else{
+                saveStructure(structurePath);
+            }
         });
 
         $('#cleanBtn').click(function(){
@@ -289,7 +299,7 @@ var numOfStructs = 0;
 
     function numberOfStructsDrawn(){
         $("#numOfStruts").text("Structures Drawn: " + ++numOfStructs);
-        if (numOfStructs == numberOfStructsToDraw){
+        if (numOfStructs == numberOfStructsToDraw && isStudy){
             $("#information").text("Thank you for completing this study.");
             $("#drawStrucutre").prop('disabled', true);
         }
