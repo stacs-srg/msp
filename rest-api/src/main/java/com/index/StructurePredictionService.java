@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import org.RDKit.*;
@@ -113,7 +114,6 @@ public class StructurePredictionService
         return path;
     }
 
-
     private void addEdge(String from, String to, int userId, int groupId){
         edgeRepo.save(new Edge(from, to));
         EdgeMetadataKey userKey = new EdgeMetadataKey(userId, from, to);
@@ -131,9 +131,7 @@ public class StructurePredictionService
         }catch (UnsatisfiedLinkError e){
             throw new UnsatisfiedLinkError("Can't Link RDKIT");
         }
-
-        String molfile = generateMolString(RWMol.MolFromSmiles(smiles));
-        return molfile;
+        return generateMolString(RWMol.MolFromSmiles(smiles));
     }
 
     private String generateMolString(RWMol mol){
@@ -151,9 +149,11 @@ public class StructurePredictionService
         return "";
     }
 
-
-    public void addStudyData(Structure endStructure, Date startTime, int userId, int undos){
-        studyRepo.save(new StudyData(startTime, new Date(), userId,  endStructure.getSmiles(), undos, 0, null));
+    public void addStudyData(Structure endStructure, Date startTime, int userId, int numberOfPredictions){
+        studyRepo.save(new StudyData(startTime, new Date(), userId,  endStructure.getSmiles(), 0, 0, numberOfPredictions));
     }
 
+    public Iterable<Structure> getStructuresForUser(int userId){
+        return structureRepo.findAll();
+    }
 }

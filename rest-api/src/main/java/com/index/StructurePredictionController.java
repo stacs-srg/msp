@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
@@ -43,9 +44,15 @@ public class StructurePredictionController
     @CrossOrigin
     @RequestMapping(method=POST, path="/add/structure/study")
     public void addStrucutre(@RequestBody ArrayList<Structure> path, @RequestHeader @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss:SS") Date startTime,
-                             @RequestHeader int userId, @RequestHeader int groupId, @RequestHeader int undos){
+                             @RequestHeader int userId, @RequestHeader int groupId, @RequestHeader int predictionsUsed){
         Structure endStructure = service.addStructure(path, userId, groupId);
-        service.addStudyData(endStructure, startTime, userId, undos);
+        service.addStudyData(endStructure, startTime, userId, predictionsUsed);
+    }
+
+    @CrossOrigin
+    @RequestMapping(method=GET, path="/get/structures/userid")
+    public Iterable<Structure> getStructuresForUser(@RequestHeader int userId){
+        return service.getStructuresForUser(userId);
     }
 
     @CrossOrigin

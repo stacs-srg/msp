@@ -9,24 +9,21 @@ var structurePath = [ { smiles : "" } ];
 var structurePathIndex = structurePath.length - 1;
 var predictionIndex = -1;
 var startTime = null;
-var undos = 0;
 
 var numberOfStructsToDraw = 10;
 var numOfStructs = 0;
-var numOfPredictionsClicked = 0;
+var predictionsUsed = 0;
 
 var isStudy = false;
 var predictionsOn = false;
+
+var listOfStructures = [];
 
 ( function($) {
 
     $('#ketcherFrame').on('load', function () {   
         var ketcher = getKetcher();
         ketcher.onStructChange(function() {
-
-            console.log(isStudy);
-            console.log(predictionsOn);
-
             var path = [];
             if (predictionIndex != -1){
                 path = predictionMap[predictionIndex].path;
@@ -36,14 +33,13 @@ var predictionsOn = false;
             var pastStruct = structurePath[structurePathIndex - 1];
             var futureStruct = structurePath[structurePathIndex + 1];
 
-            // Move back or forwards in the history if redo or undo.
+            // Move back or forwards in the history if redo or undo. Removes them from the path.
             var undo = (pastStruct && pastStruct.smiles == newStrut.smiles);
             var redo = (futureStruct && futureStruct.smiles == newStrut.smiles);
             if (!undo && !redo){
                 structurePathIndex++;
                 structurePath.splice(structurePathIndex, 0, newStrut);
             } else if (undo){
-                undos++;
                 structurePathIndex--;
             }else if (redo){
                 structurePathIndex++;
@@ -64,9 +60,12 @@ var predictionsOn = false;
         isStudy = $('#isStudy').attr("value");
         predictionsOn = $('#predictionsOn').attr("value");
 
+        if (isStudy == 'true' && predictionsOn == 'true'){
+            getStructuresFromUserId();
+        }
+
         $('.prediction-panel').click(function() {
-            predictionsOn++;
-            setStructure($(this).data("panel-id"))
+            setStructure($(this).data("panel-id"));
         });
 
         $('#saveBtn').click(function() {
@@ -85,8 +84,12 @@ var predictionsOn = false;
         $('#drawStrucutre').click(function(){
             if (startTime == null){
                 startTime = moment().format(dateFormat);
-                console.log("startTime:", startTime);
-                undos = 0;
+            }
+        });
+
+        $("#userId").change(function(){
+            if (isStudy == 'true' && predictionsOn == 'true'){
+                getStructuresFromUserId();
             }
         });
     });
@@ -156,7 +159,7 @@ var predictionsOn = false;
                 type: "post",
                 datatype: "json",
                 contentType: "application/json; charset=utf-8",
-                headers: { userId: user.userId, groupId: user.groupId, undos: undos, startTime: startTime }, 
+                headers: { userId: user.userId, groupId: user.groupId, startTime: startTime, predictionsUsed:predictionsUsed }, 
                 data: JSON.stringify( flatPath ),
                 success: function(){
                     resetKetcher();
@@ -170,6 +173,24 @@ var predictionsOn = false;
         startTime = null;
     }
 
+    function getStructuresFromUserId(){
+        var user = getMetadata();
+        $.ajax({
+            url:  hostAddress + "/get/structures/userid",
+            type: "get",
+            datatype: "json",
+            contentType: "application/json; charset=utf-8",
+            headers: { userId: user.userId },
+            success: function(response){
+                listOfStructures = response;
+                var panel = $("#panel-draw-study");
+                addStructureToPanel(panel, listOfStructures[0].mol);
+            },
+            error: function(xhr) {
+                console.log(xhr);
+            }
+        });
+    }
 
     function getMolfileForSmiles(repeat){
         var ketcher = getKetcher();
@@ -251,13 +272,10 @@ var predictionsOn = false;
         } 
     }
 
-    function addPrediction(panelNumber, prediction){
 
-        var panel = $("#panel-" + panelNumber);
+    function addStructureToPanel(panel, molfile){
         panel.empty();
         panel.parent().addClass("active");
-
-        var molfile = prediction.endStructure.mol;
 
         var result = getKetcher().showMolfile($('<li>').appendTo(panel)[0], molfile, {
             bondLength: 20,
@@ -266,35 +284,46 @@ var predictionsOn = false;
             debug: true, 
             ignoreMouseEvents: true
         });
+        return result;
+    }
 
-        var header = $("#panel-" + panelNumber + "-footer");
+    function addPrediction(pannelId, prediction){
+        var panel = $("#panel-" + pannelId);
+        var molfile = prediction.endStructure.mol;
+        
+        result = addStructureToPanel(panel, molfile);
+
+        var header = $("#panel-" + pannelId + "-footer");
         header.text(prediction.probability);
 
         if (result){
-             predictionMap[panelNumber] = prediction;
+             predictionMap[pannelId] = prediction;
          }else{
              //TODO remove this alert to a better error message. 
              alert("error");
         }
     }
 
-    function restPanel(panelNumber){
-        var panel = $("#panel-" + panelNumber);
+    function restPanel(pannelId){
+        var panel = $("#panel-" + pannelId);
         panel.empty();
         panel.parent().removeClass("active");
-        predictionMap[panelNumber] = null;
-        var header = $("#panel-" + panelNumber + "-footer");
+        predictionMap[pannelId] = null;
+        var header = $("#panel-" + pannelId + "-footer");
         header.text("");
     }
 
     function setStructure(pannelId) {
         var structure = predictionMap[pannelId];
-        var molfile = structure.endStructure.mol
-        var ketcher = getKetcher();
-        if (ketcher && molfile){
-            // prediction number picked.
-            predictionIndex = pannelId;
-            ketcher.setMolecule(molfile);
+        if (structure != null){
+            predictionsUsed++;
+            var molfile = structure.endStructure.mol
+            var ketcher = getKetcher();
+            if (ketcher && molfile){
+                // prediction number picked.
+                predictionIndex = pannelId;
+                ketcher.setMolecule(molfile);
+            }
         }
     }
 
@@ -305,9 +334,14 @@ var predictionsOn = false;
 
     function numberOfStructsDrawn(){
         $("#numOfStruts").text("Structures Drawn: " + ++numOfStructs);
-        if (numOfStructs == numberOfStructsToDraw && isStudy == "true"){
-            $("#information").text("Thank you for completing this study.");
-            $("#drawStrucutre").prop('disabled', true);
+        //Set next structure to Draw if Study
+        if (isStudy == "true"){
+            var panel = $("#panel-draw-study");
+            addStructureToPanel(panel, listOfStructures[numOfStructs].mol);
+            if (numOfStructs == numberOfStructsToDraw){
+                $("#information").text("Thank you for completing this study.");
+                $("#drawStrucutre").prop('disabled', true);
+            }
         }
     }
 

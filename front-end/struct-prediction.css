@@ -25,7 +25,6 @@
 }
 
 .prediction-panel {
-    margin-bottom: 0px !important;
     border-radius: 0px !important;
     width: 213px !important;
     height: 170px !important;
@@ -33,6 +32,16 @@
     border-radius: 5px !important;
     border-color: #CFCFCF !important;
     background-color: #E4E4E4 !important;
+}
+
+#prediction-panel-study {
+    margin-bottom: 0px !important;
+    border-radius: 0px !important;
+    width: 100% !important;
+    height: 200px !important;
+    display: inline-block !important;
+    border-radius: 5px !important;
+    border-color: #CFCFCF !important;
 }
 
 .prediction-panel.active {
