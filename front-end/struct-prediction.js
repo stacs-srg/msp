@@ -183,7 +183,8 @@ var listOfStructures = [];
             headers: { userId: user.userId },
             success: function(response){
                 listOfStructures = response;
-                var panel = $("#panel-draw-study");
+                console.log(response);
+		var panel = $("#panel-draw-study");
                 addStructureToPanel(panel, listOfStructures[0].mol);
             },
             error: function(xhr) {
