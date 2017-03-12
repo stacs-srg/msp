@@ -153,7 +153,7 @@ public class StructurePredictionService
         studyRepo.save(new StudyData(startTime, new Date(), userId,  endStructure.getSmiles(), 0, 0, numberOfPredictions));
     }
 
-    public Iterable<Structure> getStructuresForUser(int userId){
-        return structureRepo.findAll();
+    public List<Structure> getStructuresForUser(int userId){
+        return edgeMetadataRepo.findByUserIdAllEndStructures(userId);
     }
 }

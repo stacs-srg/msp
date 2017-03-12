@@ -183,9 +183,11 @@ var listOfStructures = [];
             headers: { userId: user.userId },
             success: function(response){
                 listOfStructures = response;
-                console.log(response);
-		var panel = $("#panel-draw-study");
-                addStructureToPanel(panel, listOfStructures[0].mol);
+                console.log(listOfStructures);
+                if (listOfStructures.length > 0){
+                    var panel = $("#panel-draw-study");
+                    addStructureToPanel(panel, listOfStructures[0].mol);
+                }
             },
             error: function(xhr) {
                 console.log(xhr);
@@ -337,10 +339,14 @@ var listOfStructures = [];
         $("#numOfStruts").text("Structures Drawn: " + ++numOfStructs);
         //Set next structure to Draw if Study
         if (isStudy == "true"){
-            var panel = $("#panel-draw-study");
-            addStructureToPanel(panel, listOfStructures[numOfStructs].mol);
-            if (numOfStructs == numberOfStructsToDraw){
-                $("#information").text("Thank you for completing this study.");
+
+            if (listOfStructures[numOfStructs] != null){
+                var panel = $("#panel-draw-study");
+                addStructureToPanel(panel, listOfStructures[numOfStructs].mol);
+            }
+            // || (listOfStructures.length > 0 && listOfStructures[numOfStructs] == null)
+            if (numOfStructs == numberOfStructsToDraw ){
+                $("#information").text("Thank you for finishing the study. Please give feedback! The feedback link is in the bar in the top right corner of the page.");
                 $("#drawStrucutre").prop('disabled', true);
             }
         }
