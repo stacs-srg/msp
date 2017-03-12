@@ -26,33 +26,34 @@ public interface EdgeMetadataRepo extends JpaRepository<EdgeMetadata, EdgeMetada
 
     @Query("SELECT m FROM EdgeMetadata m " +
             "WHERE m.edgeMetadataKey.smilesFrom = ?1 " +
-            "ORDER BY m.edgeMetadataKey.userId ASC, m.edgeMetadataKey.smilesTo")
+            "ORDER BY m.edgeMetadataKey.userId ASC, " +
+            "m.edgeMetadataKey.groupId ASC, m.edgeMetadataKey.smilesTo")
     List<EdgeMetadata> findBySmilesFrom(String smilesFrom);
 
-    @Query("SELECT m.edgeMetadataKey.userId, SUM(m.times) AS totalChoicesMade " +
+    @Query("SELECT m.edgeMetadataKey.userId " +
             "FROM EdgeMetadata m " +
             "WHERE m.edgeMetadataKey.smilesFrom = ?1 " +
             "GROUP BY m.edgeMetadataKey.userId " +
             "ORDER BY m.edgeMetadataKey.userId ASC")
-    List<Object[]> findBySmilesFromAllUsersAndTotalChoicesMade(String smilesFrom);
+    List<Integer> findBySmilesFromAllUsers(String smilesFrom);
 
-    @Query("SELECT m.edgeMetadataKey.smilesTo, SUM(m.times) As totalTimesPicked " +
+    @Query("SELECT m.edgeMetadataKey.groupId " +
+            "FROM EdgeMetadata m " +
+            "WHERE m.edgeMetadataKey.smilesFrom = ?1 " +
+            "GROUP BY m.edgeMetadataKey.groupId " +
+            "ORDER BY m.edgeMetadataKey.groupId ASC")
+    List<Integer> findBySmilesFromAllGroups(String smilesFrom);
+
+    @Query("SELECT m.edgeMetadataKey.smilesTo " +
             "FROM EdgeMetadata m " +
             "WHERE m.edgeMetadataKey.smilesFrom = ?1 " +
             "GROUP BY m.edgeMetadataKey.smilesTo " +
             "ORDER BY m.edgeMetadataKey.smilesTo ")
-    List<Object[]> findBySmilesFromAllSmilesToAndTotalTimesPicked(String smilesFrom);
-
-    @Query("SELECT SUM(m.times) As total " +
-            "FROM EdgeMetadata m " +
-            "WHERE m.edgeMetadataKey.smilesFrom = ?1 " +
-            "GROUP BY m.edgeMetadataKey.smilesFrom ")
-    Long findBySmilesFromTotalRows(String smilesFrom);
+    List<String> findBySmilesFromAllSmilesTo(String smilesFrom);
 
     @Query("SELECT DISTINCT m.toStructure " +
             "FROM EdgeMetadata m " +
             "WHERE m.edgeMetadataKey.smilesFrom = ?1")
     List<Structure> findBySmilesFromAllSmilesToStructures(String smilesFrom);
-
 
 }

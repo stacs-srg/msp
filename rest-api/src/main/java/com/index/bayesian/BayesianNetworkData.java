@@ -1,112 +1,126 @@
 package com.index.bayesian;
 
-import com.index.bayesian.StructureBayesianNetwork;
 import com.index.entitys.EdgeMetadata;
 import com.index.repos.EdgeMetadataRepo;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
+import static com.index.bayesian.StructureBayesianNetwork.structureNodeStart;
 
 /**
  * Created by jaco1a on 19/01/17.
  */
 public class BayesianNetworkData {
 
-    private Long totalDecisions;
+    private long totalDecisions;
 
     private Map<Integer, Long> userIdTotalDecisions;
 
+    private Map<Integer, Long> groupIdTotalDecisions;
+
     private Map<String, Long> smilesToTotalPicks;
 
-    private List<EdgeMetadata> edges;
+    private Map<String, Long> userIdGroupIdSmilesToPicks;
 
-    // required as node names cannot be have special characters in node names.
+    private Map<String, Long> userIdGroupIdPicks;
+
+    private Map<String, Long> userIdSmilesToPicks;
+
+    // required as node names cannot have special characters in node names.
     private Map<String, String> structNodeNameToSmiles;
 
     private int userId;
 
-    //TODO repeat userIds but change to be groupIds
     private int groupId;
 
     public BayesianNetworkData(String smilesFrom, EdgeMetadataRepo repo, int userId, int groupId){
 
         this.userId = userId;
         this.groupId = groupId;
+
         smilesToTotalPicks = new LinkedHashMap<>();
+        groupIdTotalDecisions = new LinkedHashMap<>();
         userIdTotalDecisions = new LinkedHashMap<>();
+        userIdGroupIdSmilesToPicks = new HashMap<>();
+        userIdGroupIdPicks = new HashMap<>();
+        userIdSmilesToPicks = new HashMap<>();
+        totalDecisions = 0;
+
         structNodeNameToSmiles = new HashMap<>();
-        totalDecisions = repo.findBySmilesFromTotalRows(smilesFrom);
-        edges = repo.findBySmilesFrom(smilesFrom);
 
-        List<Object[]> userIds = repo.findBySmilesFromAllUsersAndTotalChoicesMade(smilesFrom);
-        List<Object[]> smilesTos = repo.findBySmilesFromAllSmilesToAndTotalTimesPicked(smilesFrom);
+        List<EdgeMetadata> edges = repo.findBySmilesFrom(smilesFrom);
 
-        setUpData(userIds, smilesTos, smilesFrom);
-        checkUserIsIncluded(smilesFrom);
-    }
+        List<String> smilesTos = repo.findBySmilesFromAllSmilesTo(smilesFrom);
+        List<Integer> userIds = repo.findBySmilesFromAllUsers(smilesFrom);
+        List<Integer> groupIds = repo.findBySmilesFromAllGroups(smilesFrom);
 
-    private void checkUserIsIncluded(String smilesFrom){
-
-        if (userIdTotalDecisions.size() > 0 && userIdTotalDecisions.get(userId) == null){
-
-            long times = 0;
-
-            for (Map.Entry<String, Long> struct : smilesToTotalPicks.entrySet()) {
-
-                String smilesTo = struct.getKey();
-
-                EdgeMetadata metadata = new EdgeMetadata(userId, smilesFrom, smilesTo, 0);
-                metadata.setTimes(1);
-                edges.add(metadata);
-                smilesToTotalPicks.put(smilesTo, smilesToTotalPicks.get(smilesTo) + 1);
-                times++;
-                totalDecisions++;
-            }
-            userIdTotalDecisions.put(userId, times);
+        if (!userIds.contains(userId)){
+            userIds.add(userId);
+            Collections.sort(userIds);
         }
+        if (!groupIds.contains(groupId)){
+            groupIds.add(groupId);
+            Collections.sort(groupIds);
+        }
+
+        setUpData(userIds, smilesTos, groupIds, edges);
     }
 
-    private void setUpData(List<Object[]> userIds, List<Object[]> smilesTos, String smilesFrom){
+    private void setUpData(List<Integer> userIds, List<String> smilesTos, List<Integer> groupIds, List<EdgeMetadata> edges){
 
-        boolean firstLoop = true;
         int index = 0;
-        for (Object[] userIdInfo : userIds) {
+        int times;
+        int structIndex = 0;
+        boolean first = true;
+        for (Integer userId : userIds) {
+            for(Integer groupId: groupIds) {
+                for (String smilesTo : smilesTos) {
+                    // if you have run out of edges for the current user
+                    // OR the edge's userId does not match the current user
+                    // OR the edge's groupId does not match the current groupId
+                    // OR the edge to does not equal then an edge it should be.
+                    EdgeMetadata edge = (index < edges.size()) ? edges.get(index) : null;
+                    if (edge == null || userId != edge.getUserId() || groupId != edge.getGroupId()
+                            || smilesTo.compareTo(edge.getSmilesTo()) != 0) {
+                        times = 1;
+                    } else {
+                        times = edge.getTimes() + 1;
+                        index++;
+                    }
 
-            int userId = (int) userIdInfo[0];
-            userIdTotalDecisions.put(userId, (long) userIdInfo[1]);
+                    if (first){
+                        structNodeNameToSmiles.put(structureNodeStart + structIndex++, smilesTo);
+                    }
 
-            for (Object[] smilesToInfo : smilesTos) {
-
-                String smilesTo = (String) smilesToInfo[0];
-                if (firstLoop) {
-                    // add smilesTo into data structures required.
-                    structNodeNameToSmiles.put(StructureBayesianNetwork.structureNodeStart + index, smilesTo);
-                    smilesToTotalPicks.put(smilesTo, (long) smilesToInfo[1]);
+                    addTimesToMap(smilesToTotalPicks, smilesTo, times);
+                    addTimesToMap(groupIdTotalDecisions, groupId, times);
+                    addTimesToMap(userIdTotalDecisions, userId, times);
+                    addTimesToMap(userIdGroupIdPicks, userId.toString()+groupId.toString(), times);
+                    addTimesToMap(userIdSmilesToPicks, userId.toString()+smilesTo, times);
+                    addTimesToMap(userIdGroupIdSmilesToPicks, userId.toString()+groupId.toString()+smilesTo, times);
+                    totalDecisions += times;
                 }
-                // if you have run out of edges for the current user
-                // OR the edge's userId does not match the current user
-                // OR the edge to does not equal then an edge it should be.
-                EdgeMetadata edge = (index < edges.size()) ? edges.get(index) : null ;
-                if (edge == null || userId != edge.getUserId()
-                        || smilesTo.compareTo(edge.getSmilesTo()) != 0) {
-                    // TODO group id
-                    edge = new EdgeMetadata(userId, smilesFrom, smilesTo, 0);
-                    edges.add(index, edge);
-                }
-
-                // Increment all values by one to make the default chance of something being picked to one.
-                edge.setTimes(edge.getTimes() + 1);
-                userIdTotalDecisions.put(userId, userIdTotalDecisions.get(userId) + 1);
-                smilesToTotalPicks.put(smilesTo, smilesToTotalPicks.get(smilesTo) + 1);
-                totalDecisions++;
-
-                index++;
+                first = false;
             }
-            firstLoop = false;
         }
     }
+
+    private void addTimesToMap(Map<Integer, Long> map, Integer key, long times){
+        if (map.containsKey(key)){
+            map.put(key, map.get(key) + times);
+        }else{
+            map.put(key, times);
+        }
+    }
+
+    private void addTimesToMap(Map<String, Long> map, String key, long times){
+        if (map.containsKey(key)){
+            map.put(key, map.get(key) + times);
+        }else{
+            map.put(key, times);
+        }
+    }
+
 
     public Long getTotalDecisions() {
         return totalDecisions;
@@ -120,12 +134,24 @@ public class BayesianNetworkData {
         return smilesToTotalPicks;
     }
 
-    public List<EdgeMetadata> getEdges() {
-        return edges;
-    }
-
     public Map<String, String> getStructNodeNameToSmiles() {
         return structNodeNameToSmiles;
+    }
+
+    public Map<Integer, Long> getGroupIdTotalDecisions() {
+        return groupIdTotalDecisions;
+    }
+
+    public Map<String, Long> getUserIdGroupIdSmilesToPicks() {
+        return userIdGroupIdSmilesToPicks;
+    }
+
+    public Map<String, Long> getUserIdGroupIdPicks() {
+        return userIdGroupIdPicks;
+    }
+
+    public Map<String, Long> getUserIdSmilesToPicks() {
+        return userIdSmilesToPicks;
     }
 
     public int getUserId() {
