@@ -18,6 +18,8 @@ public class StructureBayesianNetwork {
 
     private static final String userNodeStart = "user_";
 
+    private static final String groupNodeStart = "group_";
+
     static final String structureNodeStart = "struct_";
 
     private BayesianNetworkData data;
@@ -114,7 +116,6 @@ public class StructureBayesianNetwork {
                     double userIdSmiles = userIdsSmilesTo.get(userId.getKey().toString()+smilesTo.getKey());
 
                     double P_BGivenA =  userIdSmiles / smilesTo.getValue();
-                    System.out.println(P_BGivenA);
                     double P_A = smilesTo.getValue() / totalDecisions;
                     double P_B = userId.getValue() / totalDecisions;
 

@@ -13,6 +13,9 @@ public class EdgeMetadataKey implements Serializable {
     @Column(name = "user_id")
     private int userId;
 
+    @Column(name = "group_id")
+    private int groupId;
+
     @Column(name = "smiles_to")
     private String smilesTo;
 
@@ -23,8 +26,9 @@ public class EdgeMetadataKey implements Serializable {
 
     }
 
-    public EdgeMetadataKey(int userId, String smilesFrom, String smilesTo) {
+    public EdgeMetadataKey(int userId, int groupId, String smilesFrom, String smilesTo) {
         this.userId = userId;
+        this.groupId = groupId;
         this.smilesTo = smilesTo;
         this.smilesFrom = smilesFrom;
     }
@@ -35,6 +39,14 @@ public class EdgeMetadataKey implements Serializable {
 
     public void setUserId(int userId) {
         this.userId = userId;
+    }
+
+    public int getGroupId() {
+        return groupId;
+    }
+
+    public void setGroupId(int groupId) {
+        this.groupId = groupId;
     }
 
     public String getSmilesTo() {

@@ -116,12 +116,12 @@ public class StructurePredictionService
 
     private void addEdge(String from, String to, int userId, int groupId){
         edgeRepo.save(new Edge(from, to));
-        EdgeMetadataKey userKey = new EdgeMetadataKey(userId, from, to);
+        EdgeMetadataKey userKey = new EdgeMetadataKey(userId, groupId, from, to);
 
         if(edgeMetadataRepo.exists(userKey)){
            edgeMetadataRepo.increment(userKey);
         }else{
-            edgeMetadataRepo.save(new EdgeMetadata(userKey, groupId));
+            edgeMetadataRepo.save(new EdgeMetadata(userKey));
         }
     }
 

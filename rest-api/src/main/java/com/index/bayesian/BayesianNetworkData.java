@@ -64,8 +64,6 @@ public class BayesianNetworkData {
         }
 
         setUpData(userIds, smilesTos, groupIds, edges);
-
-        System.out.println();
     }
 
     private void setUpData(List<Integer> userIds, List<String> smilesTos, List<Integer> groupIds, List<EdgeMetadata> edges){

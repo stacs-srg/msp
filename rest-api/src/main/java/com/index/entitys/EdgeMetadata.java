@@ -14,9 +14,6 @@ public class EdgeMetadata {
     private EdgeMetadataKey edgeMetadataKey;
 
     @Column
-    private int groupId;
-
-    @Column
     private int times;
 
     @Column
@@ -42,14 +39,12 @@ public class EdgeMetadata {
 
     }
 
-    public EdgeMetadata(EdgeMetadataKey edgeMetadataKey, int groupId) {
+    public EdgeMetadata(EdgeMetadataKey edgeMetadataKey) {
         this.edgeMetadataKey = edgeMetadataKey;
-        this.groupId = groupId;
     }
 
     public EdgeMetadata(int userId, String smilesFrom, String smilesTo, int groupId){
-        this.edgeMetadataKey = new EdgeMetadataKey(userId, smilesFrom, smilesTo);
-        this.groupId = groupId;
+        this.edgeMetadataKey = new EdgeMetadataKey(userId, groupId, smilesFrom, smilesTo);
     }
 
     @PrePersist
@@ -72,7 +67,7 @@ public class EdgeMetadata {
     }
 
     public void setUserId(int userId) {
-       edgeMetadataKey.setUserId(userId);
+        edgeMetadataKey.setUserId(userId);
     }
 
     public String getSmilesTo() {
@@ -120,10 +115,11 @@ public class EdgeMetadata {
     }
 
     public int getGroupId() {
-        return groupId;
+        return edgeMetadataKey.getGroupId();
     }
 
     public void setGroupId(int groupId) {
-        this.groupId = groupId;
+        edgeMetadataKey.setGroupId(groupId);
     }
 }
+
