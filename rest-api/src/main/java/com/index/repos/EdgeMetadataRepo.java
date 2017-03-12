@@ -56,4 +56,9 @@ public interface EdgeMetadataRepo extends JpaRepository<EdgeMetadata, EdgeMetada
             "WHERE m.edgeMetadataKey.smilesFrom = ?1")
     List<Structure> findBySmilesFromAllSmilesToStructures(String smilesFrom);
 
+    @Query("SELECT m.toStructure " +
+            "FROM EdgeMetadata m " +
+            "WHERE m.toStructure.end = 1 AND m.edgeMetadataKey.userId = ?1 ")
+    List<Structure> findByUserIdAllEndStructures(int userId);
+
 }

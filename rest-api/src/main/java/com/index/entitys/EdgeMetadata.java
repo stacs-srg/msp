@@ -1,6 +1,7 @@
 package com.index.entitys;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -8,7 +9,7 @@ import java.util.Date;
  */
 @Entity
 @Table(name = "edge_metadata")
-public class EdgeMetadata {
+public class EdgeMetadata implements Serializable{
 
     @EmbeddedId
     private EdgeMetadataKey edgeMetadataKey;
