@@ -346,7 +346,7 @@ var structureSkipIndex = 0;
 	    var panel = $("#panel-draw-study");
             addStructureToPanel(panel, listOfStructures[numOfStructs + structureSkipIndex].mol);
 	} else {
-	    $("#information").text("Looks like you have run out of structures to draw!");
+	    $("#drawInfo").text("Looks like you have run out of structures to draw!");
 	}
     }
 
@@ -354,16 +354,15 @@ var structureSkipIndex = 0;
         $("#numOfStruts").text("Structures Drawn: " + ++numOfStructs);
         //Set next structure to Draw if Study
         if (isStudy == "true"){
-
             if (listOfStructures[numOfStructs + structureSkipIndex] != null){
                 var panel = $("#panel-draw-study");
                 addStructureToPanel(panel, listOfStructures[numOfStructs + structureSkipIndex].mol);
             } else {
-	         $("#information").text("Looks like you have run out of structures to draw!.");   
-	    }
-            
+	         $("#drawInfo").text("Looks like you have run out of structures to draw!.");   
+    	    }
+                
             if (numOfStructs == numberOfStructsToDraw ){
-                $("#information").text("Thank you for finishing the study. Please give feedback! The feedback link is in the bar in the top right corner of the page.");
+                $("#info").text("Thank you for finishing the study. Please give feedback! The feedback link is in the bar in the top right corner of the page.");
                 $("#drawStrucutre").prop('disabled', true);
             }
         }

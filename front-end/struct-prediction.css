@@ -82,11 +82,16 @@
     border-color: #D7D7D7;
 }
 
-#forceNext {
-	margin: 5px;
+#info {
+    color: green;
+    font-size: 18px;
 }
 
-#information {
-    font-color: green;
-    font-size: 24px;
+#drawInfo {
+    color: red;
+    font-size: 18px;
+}
+
+#forceNext {
+    margin-top: 5px;
 }
