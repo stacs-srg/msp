@@ -26,6 +26,8 @@ public class BayesianNetworkData {
 
     private Map<String, Long> userIdSmilesToPicks;
 
+    private Map<String, Long> groupIdSmilesToPicks;
+
     // required as node names cannot have special characters in node names.
     private Map<String, String> structNodeNameToSmiles;
 
@@ -41,9 +43,12 @@ public class BayesianNetworkData {
         smilesToTotalPicks = new LinkedHashMap<>();
         groupIdTotalDecisions = new LinkedHashMap<>();
         userIdTotalDecisions = new LinkedHashMap<>();
-        userIdGroupIdSmilesToPicks = new HashMap<>();
-        userIdGroupIdPicks = new HashMap<>();
+
         userIdSmilesToPicks = new HashMap<>();
+        groupIdSmilesToPicks = new HashMap<>();
+        userIdGroupIdPicks = new HashMap<>();
+        userIdGroupIdSmilesToPicks = new HashMap<>();
+
         totalDecisions = 0;
 
         structNodeNameToSmiles = new HashMap<>();
@@ -91,12 +96,13 @@ public class BayesianNetworkData {
                     if (first){
                         structNodeNameToSmiles.put(structureNodeStart + structIndex++, smilesTo);
                     }
-
+                    // Builds up the information required for the network.
                     addTimesToMap(smilesToTotalPicks, smilesTo, times);
                     addTimesToMap(groupIdTotalDecisions, groupId, times);
                     addTimesToMap(userIdTotalDecisions, userId, times);
                     addTimesToMap(userIdGroupIdPicks, userId.toString()+groupId.toString(), times);
                     addTimesToMap(userIdSmilesToPicks, userId.toString()+smilesTo, times);
+                    addTimesToMap(groupIdSmilesToPicks, groupId.toString()+smilesTo, times);
                     addTimesToMap(userIdGroupIdSmilesToPicks, userId.toString()+groupId.toString()+smilesTo, times);
                     totalDecisions += times;
                 }
@@ -148,6 +154,10 @@ public class BayesianNetworkData {
 
     public Map<String, Long> getUserIdGroupIdPicks() {
         return userIdGroupIdPicks;
+    }
+
+    public Map<String, Long> getGroupIdSmilesToPicks() {
+        return groupIdSmilesToPicks;
     }
 
     public Map<String, Long> getUserIdSmilesToPicks() {

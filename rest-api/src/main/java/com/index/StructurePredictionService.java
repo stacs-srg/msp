@@ -40,10 +40,10 @@ public class StructurePredictionService
         return new Response("Chemical Molecular Structure Prediction Tool");
     }
 
-    public List<StructurePrediction> prediction(String smiles, int userId, int groupId){
+    public List<StructurePrediction> prediction(String smiles, int userId, int groupId, int type){
 
         BayesianNetworkData data = new BayesianNetworkData(smiles, edgeMetadataRepo, userId, groupId);
-        StructureBayesianNetwork network = new StructureBayesianNetwork(data);
+        StructureBayesianNetwork network = new StructureBayesianNetwork(data, type);
         List<StructurePrediction> structures = new ArrayList<>();
         for(SmilesToProb smilesTo : network.generateBestChoices()){
             List<String> path = getPath(smilesTo.getSmilesTo());
