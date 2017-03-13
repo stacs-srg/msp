@@ -6,6 +6,7 @@ import com.index.bayesian.SmilesToProb;
 import com.index.bayesian.StructureBayesianNetwork;
 import com.index.Respones.StructurePrediction;
 import com.index.entitys.*;
+import com.index.exceptions.NotEnoughDataForStudyException;
 import com.index.repos.EdgeRepo;
 import com.index.repos.EdgeMetadataRepo;
 import com.index.repos.StructureRepo;
@@ -155,9 +156,9 @@ public class StructurePredictionService
                 endStructure.getSmiles(), undos, rubs, numberOfPredictions, predictionsType));
     }
 
-    public StructuresPredictionTypes getStructuresForUserWithTypes(int userId){
-        List<Structure> userStructures = edgeMetadataRepo.findByUserIdAllEndStructuresRandomFour(userId);
-        List<Structure> otherStructures = edgeMetadataRepo.findByNotUserIdAllEndStructuresRandomThree(userId);
+    public StructuresPredictionTypes getStructuresForUserWithTypes(int userId) throws NotEnoughDataForStudyException {
+        List<Structure> userStructures = edgeMetadataRepo.findByUserIdAllEndStructuresRandom(userId);
+        List<Structure> otherStructures = edgeMetadataRepo.findByNotUserIdAllEndStructuresRandom(userId);
         return new StructuresPredictionTypes(userStructures, otherStructures);
     }
 }

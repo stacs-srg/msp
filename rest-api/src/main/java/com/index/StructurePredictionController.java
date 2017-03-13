@@ -3,6 +3,7 @@ package com.index;
 import com.index.Respones.StructurePrediction;
 import com.index.Respones.StructuresPredictionTypes;
 import com.index.entitys.Structure;
+import com.index.exceptions.NotEnoughDataForStudyException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
@@ -50,7 +51,7 @@ public class StructurePredictionController
 
     @CrossOrigin
     @RequestMapping(method=GET, path="/get/structures/userid")
-    public StructuresPredictionTypes getStructuresForUser(@RequestHeader int userId){
+    public StructuresPredictionTypes getStructuresForUser(@RequestHeader int userId) throws NotEnoughDataForStudyException {
         return service.getStructuresForUserWithTypes(userId);
     }
 

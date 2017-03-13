@@ -59,10 +59,10 @@ public interface EdgeMetadataRepo extends JpaRepository<EdgeMetadata, EdgeMetada
     @Query("SELECT m.toStructure " +
             "FROM EdgeMetadata m " +
             "WHERE m.toStructure.end = 1 AND m.edgeMetadataKey.userId = ?1 ")
-    List<Structure> findByUserIdAllEndStructuresRandomFour(int userId);
+    List<Structure> findByUserIdAllEndStructuresRandom(int userId);
 
     @Query("SELECT m.toStructure " +
             "FROM EdgeMetadata m " +
             "WHERE m.toStructure.end = 1 AND m.edgeMetadataKey.userId != ?1 ")
-    List<Structure> findByNotUserIdAllEndStructuresRandomThree(int userId);
+    List<Structure> findByNotUserIdAllEndStructuresRandom(int userId);
 }

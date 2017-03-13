@@ -1,6 +1,7 @@
 package com.index.Respones;
 
 import com.index.entitys.Structure;
+import com.index.exceptions.NotEnoughDataForStudyException;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,9 +23,14 @@ public class StructuresPredictionTypes {
 
     private List<Integer> types;
 
-    public StructuresPredictionTypes(List<Structure> userStructures, List<Structure> otherStructures) {
-        structures = new ArrayList<>();
+    public StructuresPredictionTypes(List<Structure> userStructures, List<Structure> otherStructures) throws NotEnoughDataForStudyException {
 
+        if (userStructures.size() < numUserStructures ||
+                otherStructures.size() < numOtherStructures){
+            throw new NotEnoughDataForStudyException();
+        }
+
+        structures = new ArrayList<>();
         long seed = System.nanoTime();
         Collections.shuffle(userStructures, new Random(seed));
         Collections.shuffle(otherStructures, new Random(seed));
@@ -36,12 +42,11 @@ public class StructuresPredictionTypes {
             structures.add(otherStructures.get(i));
         }
         int structuresSize = structures.size();
-        for(int i = 0; i < numOfGroups; i++) {
+        for(int i = 0; i < numOfGroups - 1; i++) {
             for(int j = 0; j < structuresSize; j++) {
                 structures.add(structures.get(j));
             }
         }
-        System.out.println("size: " + userStructures.size());
         this.types = new ArrayList<>();
         for(int i = 0; i < numOfGroups; i++) {
             for(int j = 0; j < structuresSize; j++) {

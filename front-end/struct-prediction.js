@@ -343,7 +343,7 @@ var structuresToDraw = null;
         structureSkipIndex++;
         if (structuresToDraw.structures[numOfStructs + structureSkipIndex] != null){
             var panel = $("#panel-draw-study");
-                addStructureToPanel(panel, structuresToDraw.structures[numOfStructs + structureSkipIndex].mol);
+            addStructureToPanel(panel, structuresToDraw.structures[numOfStructs + structureSkipIndex].mol);
         } else {
             $("#drawInfo").text("Looks like you have run out of structures to draw!");
         }
@@ -378,10 +378,16 @@ var structuresToDraw = null;
             contentType: "application/json; charset=utf-8",
             headers: { userId: user.userId },
             success: function(response){
+                console.log(response);
                 setUserStructuresToDraw(response);
             },
             error: function(xhr) {
-                console.log(xhr);
+                if ((xhr.responseText).includes("com.index.exceptions.NotEnoughDataForStudyException")){
+                    $("#drawInfo").text(" Current user does not have enough data to do study. ");
+                }else{
+                    $("#drawInfo").text("");
+                    console.log(xhr);
+                }
             }
         });
     }
