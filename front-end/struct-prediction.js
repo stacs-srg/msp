@@ -113,7 +113,7 @@ var listOfStructures = [];
             type: "get",
             datatype: "json",
             contentType: "application/json; charset=utf-8",
-            headers: { userId: user.userId, groupId: user.groupId, type : 2 }, 
+            headers: { userId: user.userId, groupId: user.groupId, type : 3 }, 
             data:{"smiles": smiles},
             
             success: function(response) {
