@@ -359,7 +359,7 @@ var structureSkipIndex = 0;
                 var panel = $("#panel-draw-study");
                 addStructureToPanel(panel, listOfStructures[numOfStructs + structureSkipIndex].mol);
             } else {
-	         $("#information").text("Looks like you have run out of structures to draw!.");   
+	         //$("#information").text("Looks like you have run out of structures to draw!.");   
 	    }
             
             if (numOfStructs == numberOfStructsToDraw ){
