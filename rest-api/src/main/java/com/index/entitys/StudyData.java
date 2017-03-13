@@ -32,12 +32,14 @@ public class StudyData {
     @Column(name = "predictions_used")
     private Integer predictionsUsed;
 
+    @Column(name = "prediction_type")
+    private Integer predictionType;
 
     public StudyData(){
 
     }
 
-    public StudyData(Date startTime, Date endTime, int userId, String smiles, int undos, int rubs, Integer predictionsUsed) {
+    public StudyData(Date startTime, Date endTime, int userId, String smiles, int undos, int rubs, Integer predictionsUsed, Integer predictionType) {
         this.startTime = startTime;
         this.endTime = endTime;
         this.userId = userId;
@@ -45,6 +47,7 @@ public class StudyData {
         this.undos = undos;
         this.rubs = rubs;
         this.predictionsUsed = predictionsUsed;
+        this.predictionType = predictionType;
     }
 
     public Date getStartTime() {
@@ -85,5 +88,29 @@ public class StudyData {
 
     public void setUndos(int undos) {
         this.undos = undos;
+    }
+
+    public int getRubs() {
+        return rubs;
+    }
+
+    public void setRubs(int rubs) {
+        this.rubs = rubs;
+    }
+
+    public Integer getPredictionsUsed() {
+        return predictionsUsed;
+    }
+
+    public void setPredictionsUsed(Integer predictionsUsed) {
+        this.predictionsUsed = predictionsUsed;
+    }
+
+    public Integer getPredictionType() {
+        return predictionType;
+    }
+
+    public void setPredictionType(Integer predictionType) {
+        this.predictionType = predictionType;
     }
 }

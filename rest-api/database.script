@@ -9,6 +9,6 @@ CREATE TABLE edge(smiles_to VARCHAR(200), smiles_from VARCHAR(200), PRIMARY KEY 
 
 CREATE TABLE edge_metadata(user_id INTEGER, group_id INTEGER, times INTEGER not null default 1, last_date TIMESTAMP, smiles_to VARCHAR(200), smiles_from VARCHAR(200), FOREIGN KEY (smiles_to) REFERENCES edge(smiles_to), FOREIGN KEY (smiles_from) REFERENCES edge(smiles_from), PRIMARY KEY (user_id, smiles_to, group_id, smiles_from));
 
-CREATE TABLE study_data(user_id INTEGER, smiles VARCHAR(200), start_time TIMESTAMP, end_time TIMESTAMP, undos INTEGER, rubs INTEGER, predictions_used INTEGER, PRIMARY KEY (start_time), FOREIGN KEY (smiles) REFERENCES structure(smiles));
+CREATE TABLE study_data(user_id INTEGER, smiles VARCHAR(200), start_time TIMESTAMP, end_time TIMESTAMP, undos INTEGER, rubs INTEGER, predictions_used INTEGER, prediction_type INTEGER, PRIMARY KEY (start_time), FOREIGN KEY (smiles) REFERENCES structure(smiles));
 
 //CREATE INDEX smiles_from ON edge_metadata (smiles_from);
