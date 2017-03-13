@@ -1,5 +1,5 @@
-var hostAddress = "http://localhost:17938/structure-prediction";
-//var hostAddress = "https://jacr.host.cs.st-andrews.ac.uk/structure-prediction"
+//var hostAddress = "http://localhost:17938/structure-prediction";
+var hostAddress = "https://jacr.host.cs.st-andrews.ac.uk/structure-prediction"
 
 var dateFormat = "YYYY-MM-DD HH:mm:ss:SSS";
 
@@ -113,7 +113,7 @@ var listOfStructures = [];
             type: "get",
             datatype: "json",
             contentType: "application/json; charset=utf-8",
-            headers: { userId: user.userId, groupId: user.groupId, type : 3 }, 
+            headers: { userId: user.userId, groupId: user.groupId, type : 1 }, 
             data:{"smiles": smiles},
             
             success: function(response) {
@@ -159,7 +159,7 @@ var listOfStructures = [];
                 type: "post",
                 datatype: "json",
                 contentType: "application/json; charset=utf-8",
-                headers: { userId: user.userId, groupId: user.groupId, startTime: startTime, predictionsUsed:predictionsUsed }, 
+                headers: { userId: user.userId, groupId: user.groupId, startTime: startTime, predictionsUsed : predictionsUsed }, 
                 data: JSON.stringify( flatPath ),
                 success: function(){
                     resetKetcher();
