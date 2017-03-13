@@ -113,7 +113,7 @@ var listOfStructures = [];
             type: "get",
             datatype: "json",
             contentType: "application/json; charset=utf-8",
-            headers: { userId: user.userId, groupId: user.groupId }, 
+            headers: { userId: user.userId, groupId: user.groupId, type : 2 }, 
             data:{"smiles": smiles},
             
             success: function(response) {
@@ -140,7 +140,8 @@ var listOfStructures = [];
                 headers: { userId: user.userId, groupId: user.groupId}, 
                 data: JSON.stringify( flatPath ),
                 success: function(){
-                    resetKetcher();   
+                    resetKetcher();
+                    numberOfStructsDrawn();   
                 },
                 error: function(xhr) {
                     console.log(xhr);
@@ -148,7 +149,6 @@ var listOfStructures = [];
             });
         }
     }
-
 
     function saveStructureStudy(structurePath){
         if (structurePath.length != 1){

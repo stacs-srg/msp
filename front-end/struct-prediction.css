@@ -25,6 +25,7 @@
 }
 
 .prediction-panel {
+    margin: 0px !important;
     border-radius: 0px !important;
     width: 213px !important;
     height: 170px !important;
@@ -66,4 +67,17 @@
 #ketcherFrame {
     width:100%;
     border: none;
+}
+
+#numOfStruts , #drawStrucuture {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+#numOfStruts {
+    font-size: 17px;
+}
+
+.grey-line {
+    border-color: #D7D7D7;
 }
