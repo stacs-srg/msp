@@ -18,6 +18,7 @@ var isStudy = false;
 var predictionsOn = false;
 
 var listOfStructures = [];
+var structureSkipIndex = 0;
 
 ( function($) {
 
@@ -62,6 +63,10 @@ var listOfStructures = [];
 
         if (isStudy == 'true' && predictionsOn == 'true'){
             getStructuresFromUserId();
+            
+	    $('#forceNext').click(function(){
+                forceNextStructure();
+            });
         }
 
         $('.prediction-panel').click(function() {
@@ -335,16 +340,28 @@ var listOfStructures = [];
         return { userId : array[0].value, groupId : array[1].value};
     }
 
+    function forceNextStructure(){
+	structureSkipIndex++;
+	if (listOfStructures[numOfStructs + structureSkipIndex] != null){
+	    var panel = $("#panel-draw-study");
+            addStructureToPanel(panel, listOfStructures[numOfStructs + structureSkipIndex].mol);
+	} else {
+	    $("#information").text("Looks like you have run out of structures to draw!");
+	}
+    }
+
     function numberOfStructsDrawn(){
         $("#numOfStruts").text("Structures Drawn: " + ++numOfStructs);
         //Set next structure to Draw if Study
         if (isStudy == "true"){
 
-            if (listOfStructures[numOfStructs] != null){
+            if (listOfStructures[numOfStructs + structureSkipIndex] != null){
                 var panel = $("#panel-draw-study");
-                addStructureToPanel(panel, listOfStructures[numOfStructs].mol);
-            }
-            // || (listOfStructures.length > 0 && listOfStructures[numOfStructs] == null)
+                addStructureToPanel(panel, listOfStructures[numOfStructs + structureSkipIndex].mol);
+            } else {
+	         $("#information").text("Looks like you have run out of structures to draw!.");   
+	    }
+            
             if (numOfStructs == numberOfStructsToDraw ){
                 $("#information").text("Thank you for finishing the study. Please give feedback! The feedback link is in the bar in the top right corner of the page.");
                 $("#drawStrucutre").prop('disabled', true);
