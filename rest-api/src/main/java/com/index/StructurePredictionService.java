@@ -1,9 +1,10 @@
 package com.index;
 
+import com.index.Respones.StructuresPredictionTypes;
 import com.index.bayesian.BayesianNetworkData;
 import com.index.bayesian.SmilesToProb;
 import com.index.bayesian.StructureBayesianNetwork;
-import com.index.bayesian.StructurePrediction;
+import com.index.Respones.StructurePrediction;
 import com.index.entitys.*;
 import com.index.repos.EdgeRepo;
 import com.index.repos.EdgeMetadataRepo;
@@ -14,7 +15,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 
 import org.RDKit.*;
@@ -40,10 +40,10 @@ public class StructurePredictionService
         return new Response("Chemical Molecular Structure Prediction Tool");
     }
 
-    public List<StructurePrediction> prediction(String smiles, int userId, int groupId, int type){
+    public List<StructurePrediction> prediction(String smiles, int userId, int groupId, int predictionsType){
 
         BayesianNetworkData data = new BayesianNetworkData(smiles, edgeMetadataRepo, userId, groupId);
-        StructureBayesianNetwork network = new StructureBayesianNetwork(data, type);
+        StructureBayesianNetwork network = new StructureBayesianNetwork(data, predictionsType);
         List<StructurePrediction> structures = new ArrayList<>();
         for(SmilesToProb smilesTo : network.generateBestChoices()){
             List<String> path = getPath(smilesTo.getSmilesTo());
@@ -149,11 +149,15 @@ public class StructurePredictionService
         return "";
     }
 
-    public void addStudyData(Structure endStructure, Date startTime, int userId, int numberOfPredictions){
-        studyRepo.save(new StudyData(startTime, new Date(), userId,  endStructure.getSmiles(), 0, 0, numberOfPredictions));
+    public void addStudyData(Structure endStructure, Date startTime, int userId, int numberOfPredictions,
+                             int rubs, int undos, int predictionsType){
+        studyRepo.save(new StudyData(startTime, new Date(), userId,
+                endStructure.getSmiles(), undos, rubs, numberOfPredictions, predictionsType));
     }
 
-    public List<Structure> getStructuresForUser(int userId){
-        return edgeMetadataRepo.findByUserIdAllEndStructures(userId);
+    public StructuresPredictionTypes getStructuresForUserWithTypes(int userId){
+        List<Structure> userStructures = edgeMetadataRepo.findByUserIdAllEndStructuresRandomFour(userId);
+        List<Structure> otherStructures = edgeMetadataRepo.findByNotUserIdAllEndStructuresRandomThree(userId);
+        return new StructuresPredictionTypes(userStructures, otherStructures);
     }
 }

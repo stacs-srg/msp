@@ -83,13 +83,13 @@
 }
 
 #info {
-    color: green;
-    font-size: 18px;
+    color: #004A00;
+    font-size: 15px;
 }
 
 #drawInfo {
     color: red;
-    font-size: 18px;
+    font-size: 15px;
 }
 
 #forceNext {

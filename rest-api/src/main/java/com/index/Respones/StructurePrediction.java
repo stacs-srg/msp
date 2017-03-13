@@ -1,4 +1,4 @@
-package com.index.bayesian;
+package com.index.Respones;
 
 import com.index.entitys.Structure;
 

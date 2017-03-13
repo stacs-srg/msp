@@ -1,5 +1,5 @@
-//var hostAddress = "http://localhost:17938/structure-prediction";
-var hostAddress = "https://jacr.host.cs.st-andrews.ac.uk/structure-prediction"
+var hostAddress = "http://localhost:17938/structure-prediction";
+//var hostAddress = "https://jacr.host.cs.st-andrews.ac.uk/structure-prediction"
 
 var dateFormat = "YYYY-MM-DD HH:mm:ss:SSS";
 
@@ -12,13 +12,14 @@ var startTime = null;
 
 var numberOfStructsToDraw = 10;
 var numOfStructs = 0;
+var structureSkipIndex = 0;
+
 var predictionsUsed = 0;
 
 var isStudy = false;
 var predictionsOn = false;
 
-var listOfStructures = [];
-var structureSkipIndex = 0;
+var structuresToDraw = null;
 
 ( function($) {
 
@@ -57,16 +58,25 @@ var structureSkipIndex = 0;
 
     $( document ).ready(function() {
         
-        // Get custom values.
+        // Get custom values for each HTML page. 
         isStudy = $('#isStudy').attr("value");
         predictionsOn = $('#predictionsOn').attr("value");
 
         if (isStudy == 'true' && predictionsOn == 'true'){
-            getStructuresFromUserId();
+            getStructuresForUserToDrawStudy();
             
-	    $('#forceNext').click(function(){
+           $('#forceNext').click(function(){
                 forceNextStructure();
             });
+
+            $("#userId").change(function(){
+                getStructuresForUserToDrawStudy();
+            });
+
+        } else if (isStudy == "true"){
+            $("#numOfStruts").text("Structures Drawn: " + numOfStructs + " out of " + numberOfStructsToDraw);
+        } else {
+            $("#numOfStruts").text("Structures Drawn: " + numOfStructs);
         }
 
         $('.prediction-panel').click(function() {
@@ -82,19 +92,12 @@ var structureSkipIndex = 0;
         });
 
         $('#cleanBtn').click(function(){
-            getMolfileForSmiles(true);
+            getMolfileForSmiles();
         });
-
         // For Study, sets startTime of drawing, and initalization of errors.
         $('#drawStrucutre').click(function(){
             if (startTime == null){
                 startTime = moment().format(dateFormat);
-            }
-        });
-
-        $("#userId").change(function(){
-            if (isStudy == 'true' && predictionsOn == 'true'){
-                getStructuresFromUserId();
             }
         });
     });
@@ -113,12 +116,16 @@ var structureSkipIndex = 0;
 
     function requestPredictions(smiles){
         var user = getMetadata();
+        // Gets the type of prediction else just default.
+        var type = (structuresToDraw == null || structuresToDraw.structures.length <= 0 ? 1 : structuresToDraw.types[numOfStructs + structureSkipIndex]);
+        console.log(structuresToDraw)
+        console.log(type)
         $.ajax({
             url: hostAddress + "/prediction",
             type: "get",
             datatype: "json",
             contentType: "application/json; charset=utf-8",
-            headers: { userId: user.userId, groupId: user.groupId, type : 1 }, 
+            headers: { userId: user.userId, groupId: user.groupId, predictionsType : type }, 
             data:{"smiles": smiles},
             
             success: function(response) {
@@ -155,16 +162,27 @@ var structureSkipIndex = 0;
         }
     }
 
+    function resetKetcher(times){
+        var ketcher = getKetcher();
+        if(ketcher){
+            document.getElementById('ketcherFrame').src = document.getElementById('ketcherFrame').src;
+            structurePath = [ { smiles : "" } ];
+            structurePathIndex = structurePath.length - 1;
+            resetNumberOfPanels(0);
+        }
+    }
+
     function saveStructureStudy(structurePath){
         if (structurePath.length != 1){
             var user = getMetadata();
             flatPath = flattenStructurePath(structurePath, structurePathIndex);
+            var type = (structuresToDraw == null || structuresToDraw.structures.length <= 0 ? 1 : structuresToDraw.types[numOfStructs + structureSkipIndex]);
             $.ajax({
                 url:  hostAddress + "/add/structure/study",
                 type: "post",
                 datatype: "json",
                 contentType: "application/json; charset=utf-8",
-                headers: { userId: user.userId, groupId: user.groupId, startTime: startTime, predictionsUsed : predictionsUsed }, 
+                headers: { userId: user.userId, groupId: user.groupId, startTime: startTime, predictionsUsed : predictionsUsed, predictionsType : type}, 
                 data: JSON.stringify( flatPath ),
                 success: function(){
                     resetKetcher();
@@ -178,29 +196,17 @@ var structureSkipIndex = 0;
         startTime = null;
     }
 
-    function getStructuresFromUserId(){
-        var user = getMetadata();
-        $.ajax({
-            url:  hostAddress + "/get/structures/userid",
-            type: "get",
-            datatype: "json",
-            contentType: "application/json; charset=utf-8",
-            headers: { userId: user.userId },
-            success: function(response){
-                listOfStructures = response;
-                console.log(listOfStructures);
-                if (listOfStructures.length > 0){
-                    var panel = $("#panel-draw-study");
-                    addStructureToPanel(panel, listOfStructures[0].mol);
-                }
-            },
-            error: function(xhr) {
-                console.log(xhr);
-            }
-        });
+    function resetKetcher(times){
+        var ketcher = getKetcher();
+        if(ketcher){
+            document.getElementById('ketcherFrame').src = document.getElementById('ketcherFrame').src;
+            structurePath = [ { smiles : "" } ];
+            structurePathIndex = structurePath.length - 1;
+            resetNumberOfPanels(0);
+        }
     }
 
-    function getMolfileForSmiles(repeat){
+    function getMolfileForSmiles(){
         var ketcher = getKetcher();
         if (ketcher){
             var smiles = ketcher.getSmiles();
@@ -213,7 +219,7 @@ var structureSkipIndex = 0;
                     headers: {  }, 
                     data: { "smiles": smiles },
                     success: function(response){
-                        getMoflieOnSuccess(response, false);
+                        getMoflieOnSuccess(response);
                     },
                     error: function(xhr) {
                         console.log(xhr);
@@ -223,28 +229,16 @@ var structureSkipIndex = 0;
         }
     }
 
-    function getMoflieOnSuccess(response, repeat){
+    function getMoflieOnSuccess(response){
         var ketcher = getKetcher();
         if (ketcher){
             var molfile = response;
             var start = "Ketcher 01301715232D 1   1.00000     0.00000     0\n\n";
             molfile = start + molfile;
             ketcher.setMolecule(molfile);
-            if (repeat){
-                getMolfileForSmiles(false);
-            }
         }
     }
 
-    function resetKetcher(times){
-        var ketcher = getKetcher();
-        if(ketcher){
-            document.getElementById('ketcherFrame').src = document.getElementById('ketcherFrame').src;
-            structurePath = [ { smiles : "" } ];
-            structurePathIndex = structurePath.length - 1;
-            resetNumberOfPanels(0);
-        }
-    }
 
     function flattenStructurePath(structurePath, index){
         flatPath = [];
@@ -340,31 +334,65 @@ var structureSkipIndex = 0;
         return { userId : array[0].value, groupId : array[1].value};
     }
 
+
+// -----------------------------------------------------------------------------------------------
+//      Functions for Study
+// -----------------------------------------------------------------------------------------------
+
     function forceNextStructure(){
-	structureSkipIndex++;
-	if (listOfStructures[numOfStructs + structureSkipIndex] != null){
-	    var panel = $("#panel-draw-study");
-            addStructureToPanel(panel, listOfStructures[numOfStructs + structureSkipIndex].mol);
-	} else {
-	    $("#drawInfo").text("Looks like you have run out of structures to draw!");
-	}
+        structureSkipIndex++;
+        if (structuresToDraw.structures[numOfStructs + structureSkipIndex] != null){
+            var panel = $("#panel-draw-study");
+                addStructureToPanel(panel, structuresToDraw.structures[numOfStructs + structureSkipIndex].mol);
+        } else {
+            $("#drawInfo").text("Looks like you have run out of structures to draw!");
+        }
     }
 
     function numberOfStructsDrawn(){
-        $("#numOfStruts").text("Structures Drawn: " + ++numOfStructs);
-        //Set next structure to Draw if Study
+        //Set next structure to Draw if Study 
         if (isStudy == "true"){
-            if (listOfStructures[numOfStructs + structureSkipIndex] != null){
+            $("#numOfStruts").text("Structures Drawn: " + ++numOfStructs + " out of " + numberOfStructsToDraw);
+
+            if (structuresToDraw != null && structuresToDraw.structures[numOfStructs + structureSkipIndex] != null){
                 var panel = $("#panel-draw-study");
-                addStructureToPanel(panel, listOfStructures[numOfStructs + structureSkipIndex].mol);
-            } else {
-	         $("#drawInfo").text("Looks like you have run out of structures to draw!.");   
-    	    }
-                
-            if (numOfStructs == numberOfStructsToDraw ){
-                $("#info").text("Thank you for finishing the study. Please give feedback! The feedback link is in the bar in the top right corner of the page.");
+                addStructureToPanel(panel, structuresToDraw.structures[numOfStructs + structureSkipIndex].mol);
+            } else if (numOfStructs == numberOfStructsToDraw ){
+                $("#info").text("Thank you for finishing the study. Please give feedback. The feedback link is in the bar in the top right corner of the page.");
                 $("#drawStrucutre").prop('disabled', true);
+            }else {
+                $("#drawInfo").text("Looks like you have run out of structures to draw.");   
             }
+                
+        } else {
+            $("#numOfStruts").text("Structures Drawn: " + ++numOfStructs);
+        }
+    }
+
+    function getStructuresForUserToDrawStudy(){
+        var user = getMetadata();
+        $.ajax({
+            url:  hostAddress + "/get/structures/userid",
+            type: "get",
+            datatype: "json",
+            contentType: "application/json; charset=utf-8",
+            headers: { userId: user.userId },
+            success: function(response){
+                setUserStructuresToDraw(response);
+            },
+            error: function(xhr) {
+                console.log(xhr);
+            }
+        });
+    }
+
+    function setUserStructuresToDraw(response){
+        structuresToDraw = response;
+        if (structuresToDraw.structures.length > 0){
+            numberOfStructsToDraw = structuresToDraw.structures.length;
+            $("#numOfStruts").text("Structures Drawn: " + numOfStructs + " out of " + numberOfStructsToDraw);
+            var panel = $("#panel-draw-study");
+            addStructureToPanel(panel, structuresToDraw.structures[0].mol);
         }
     }
 

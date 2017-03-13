@@ -26,7 +26,7 @@ public class StructureBayesianNetwork {
     private Network network;
 
 
-    public StructureBayesianNetwork(BayesianNetworkData data, int type){
+    public StructureBayesianNetwork(BayesianNetworkData data, int predictionsType){
 
         this.data = data;
 
@@ -70,7 +70,7 @@ public class StructureBayesianNetwork {
         // remove the default structures.
         network.deleteOutcome(structureNodeName, 0);
         network.deleteOutcome(structureNodeName, 0);
-        setStructureChoiceDef(type);
+        setStructureChoiceDef(predictionsType);
         // print network for testing purposes.
         network.writeFile("test_network.xdsl");
     }
@@ -97,7 +97,7 @@ public class StructureBayesianNetwork {
         network.setNodeDefinition(nodeName, definitions);
     }
 
-    private void setStructureChoiceDef(int type){
+    private void setStructureChoiceDef(int predictionsType){
 
         Map<String, Long> smilesTos = data.getSmilesToTotalPicks();
         Map<Integer, Long> userIds = data.getUserIdTotalDecisions();
@@ -111,12 +111,12 @@ public class StructureBayesianNetwork {
                 for (Map.Entry<String, Long> smilesTo : smilesTos.entrySet()) {
 
                     // default = just user, type 2 = just group and type = 3 both group and user.
-                    if (type == 2) {
+                    if (predictionsType == 2) {
                         Map<String, Long> groupIdsSmilesTo = data.getGroupIdSmilesToPicks();
                         double groupIdSmiles = groupIdsSmilesTo.get(groupId.getKey().toString() + smilesTo.getKey());
                         structureDefinition[defIndex] = generateProbForOneGiven(userId.getValue(),
                                 groupIdSmiles, smilesTo.getValue(), totalDecisions);
-                    } else if (type == 3) {
+                    } else if (predictionsType == 3) {
                         Map<String, Long> userGroupSmilesTos = data.getUserIdGroupIdSmilesToPicks();
                         Map<String, Long> usersGroup = data.getUserIdGroupIdPicks();
                         double userGroupSmilesTo = userGroupSmilesTos.get(userId.getKey().toString() + groupId.getKey().toString() + smilesTo.getKey());
