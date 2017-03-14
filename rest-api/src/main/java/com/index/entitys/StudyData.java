@@ -20,8 +20,14 @@ public class StudyData {
     @Column(name = "user_id")
     private int userId;
 
+    @Column(name = "group_id")
+    private int groupId;
+
     @Column(name = "smiles")
     private String smiles;
+
+    @Column(name = "smiles_drawn")
+    private String smilesDrawn;
 
     @Column(name = "undos")
     private int undos;
@@ -37,17 +43,6 @@ public class StudyData {
 
     public StudyData(){
 
-    }
-
-    public StudyData(Date startTime, Date endTime, int userId, String smiles, int undos, int rubs, Integer predictionsUsed, Integer predictionType) {
-        this.startTime = startTime;
-        this.endTime = endTime;
-        this.userId = userId;
-        this.smiles = smiles;
-        this.undos = undos;
-        this.rubs = rubs;
-        this.predictionsUsed = predictionsUsed;
-        this.predictionType = predictionType;
     }
 
     public Date getStartTime() {
@@ -112,5 +107,21 @@ public class StudyData {
 
     public void setPredictionType(Integer predictionType) {
         this.predictionType = predictionType;
+    }
+
+    public String getSmilesDrawn() {
+        return smilesDrawn;
+    }
+
+    public void setSmilesDrawn(String smilesDrawn) {
+        this.smilesDrawn = smilesDrawn;
+    }
+
+    public int getGroupId() {
+        return groupId;
+    }
+
+    public void setGroupId(int groupId) {
+        this.groupId = groupId;
     }
 }

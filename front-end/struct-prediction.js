@@ -11,9 +11,8 @@ var predictionIndex = -1;
 // default value 10
 var numberOfStructsToDraw = 10;
 var numOfStructs = 0;
-var structureSkipIndex = 0;
 // Data that is sent for study
-var studyData = { startTime: null, userId : null, predictionsUsed : 0, predictionType : 0, rubs : 0, undos : 0};
+var studyData = { smiles : null, startTime: null, userId : null, predictionsUsed : 0, predictionType : 0, rubs : 0, undos : 0};
 // Settings on what to use.
 var htmlSettings = { isStudy : false, predictionsOn : true }
 // Describes the structures format for the study data. 
@@ -66,10 +65,6 @@ var structuresToDraw = null;
         if (htmlSettings.isStudy && htmlSettings.predictionsOn){
             getStructuresForUserToDrawStudy();
             
-           $('#forceNext').click(function(){
-                forceNextStructure();
-            });
-
             $("#userId").change(function(){
                 getStructuresForUserToDrawStudy();
             });
@@ -119,7 +114,7 @@ var structuresToDraw = null;
     function requestPredictions(smiles){
         var user = getMetadata();
         // Gets the type of prediction else just default.
-        var type = (structuresToDraw == null || structuresToDraw.structures.length <= 0 ? 1 : structuresToDraw.types[numOfStructs + structureSkipIndex]);
+        var type = (structuresToDraw == null || structuresToDraw.structures.length <= 0 ? 1 : structuresToDraw.types[numOfStructs]);
         $.ajax({
             url: hostAddress + "/prediction",
             type: "get",
@@ -176,13 +171,17 @@ var structuresToDraw = null;
         if (structurePath.length != 1){
             var user = getMetadata();
             flatPath = flattenStructurePath(structurePath, structurePathIndex);
-            var type = (structuresToDraw == null || structuresToDraw.structures.length <= 0 ? 1 : structuresToDraw.types[numOfStructs + structureSkipIndex]);
+            var type = (structuresToDraw == null || structuresToDraw.structures.length <= 0 ? 1 : structuresToDraw.types[numOfStructs]);
             // Whether to just save structure and study data or just study data.
             var path = (htmlSettings.predictionsOn) ? "/add/study" : "/add/structure/study";
             console.log()
             // Set up study Data object.
             studyData.userId = user.userId;
+            studyData.groupId = user.groupId
             studyData.predictionType = type;
+            if (structuresToDraw != null){
+                studyData.smiles = structuresToDraw[numOfStruts];
+            }
             var studyDataJson = JSON.stringify(studyData);
 
             $.ajax({
@@ -190,7 +189,7 @@ var structuresToDraw = null;
                 type: "post",
                 datatype: "json",
                 contentType: "application/json; charset=utf-8",
-                headers: { groupId: user.groupId, studyDataJson: studyDataJson }, 
+                headers: { studyDataJson: studyDataJson }, 
                 data: JSON.stringify( flatPath ),
                 success: function(){
                     resetKetcher();
@@ -202,16 +201,6 @@ var structuresToDraw = null;
             });
         }
         studyData.startTime = null;
-    }
-
-    function resetKetcher(times){
-        var ketcher = getKetcher();
-        if(ketcher){
-            document.getElementById('ketcherFrame').src = document.getElementById('ketcherFrame').src;
-            structurePath = [ { smiles : "" } ];
-            structurePathIndex = structurePath.length - 1;
-            resetNumberOfPanels(0);
-        }
     }
 
     function getMolfileForSmiles(){
@@ -349,25 +338,15 @@ var structuresToDraw = null;
 //      Functions for Study
 // -----------------------------------------------------------------------------------------------
 
-    function forceNextStructure(){
-        structureSkipIndex++;
-        if (structuresToDraw.structures[numOfStructs + structureSkipIndex] != null){
-            var panel = $("#panel-draw-study");
-            addStructureToPanel(panel, structuresToDraw.structures[numOfStructs + structureSkipIndex].mol);
-        } else {
-            $("#drawInfo").text("Looks like you have run out of structures to draw!");
-        }
-    }
-
     function numberOfStructsDrawn(){
         //Set next structure to Draw if Study 
         if (htmlSettings.isStudy){
             $("#numOfStruts").text("Structures Drawn: " + ++numOfStructs + " out of " + numberOfStructsToDraw);
 
-            if (structuresToDraw != null && structuresToDraw.structures[numOfStructs + structureSkipIndex] != null){
+            if (structuresToDraw != null && structuresToDraw.structures[numOfStructs] != null){
                 var panel = $("#panel-draw-study");
                 panel.show();
-                addStructureToPanel(panel, structuresToDraw.structures[numOfStructs + structureSkipIndex].mol);
+                addStructureToPanel(panel, structuresToDraw.structures[numOfStructs].mol);
             } else if (numOfStructs == numberOfStructsToDraw ){
                 $("#info").text("Thank you for finishing the study. Please give feedback. The feedback link is in the bar in the top right corner of the page.");
                 $("#drawStrucutre").prop('disabled', true);
