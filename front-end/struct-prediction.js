@@ -4,21 +4,22 @@ var hostAddress = "http://localhost:17938/structure-prediction";
 var dateFormat = "YYYY-MM-DD HH:mm:ss:SSS";
 
 var predictionMap = {};
-// initially nothing.
+// Used to keep track of path being created.
 var structurePath = [ { smiles : "" } ];
 var structurePathIndex = structurePath.length - 1;
 var predictionIndex = -1;
-var startTime = null;
-
+// default value 10
 var numberOfStructsToDraw = 10;
 var numOfStructs = 0;
 var structureSkipIndex = 0;
-
-var predictionsUsed = 0;
-
-var isStudy = false;
-var predictionsOn = false;
-
+// Data that is sent for study
+var studyData = { startTime: null, userId : null, predictionsUsed : 0, predictionType : 0, rubs : 0, undos : 0};
+// Settings on what to use.
+var htmlSettings = { isStudy : false, predictionsOn : true }
+// Describes the structures format for the study data. 
+// GROUPS: no-prediction: 0, user : 1, groups: 2, both: 3
+var description = { numUserStructures: 4, numOtherStructures : 3, numOfGroups : 4 }
+// List of strucutres that is producted from the desciption.
 var structuresToDraw = null;
 
 ( function($) {
@@ -50,7 +51,7 @@ var structuresToDraw = null;
             console.log("index", structurePathIndex);
             console.log("full-struct path:", structurePath);
             console.log("flat Path: ", flattenStructurePath(structurePath, structurePathIndex));
-            if (predictionsOn == "true"){
+            if (htmlSettings.predictionsOn){
                 requestPredictions(newStrut.smiles);
             }
         });
@@ -59,10 +60,10 @@ var structuresToDraw = null;
     $( document ).ready(function() {
         
         // Get custom values for each HTML page. 
-        isStudy = $('#isStudy').attr("value");
-        predictionsOn = $('#predictionsOn').attr("value");
-
-        if (isStudy == 'true' && predictionsOn == 'true'){
+        htmlSettings.isStudy = ( $('#isStudy').attr("value") == "true");
+        htmlSettings.predictionsOn = ( $('#predictionsOn').attr("value") == "true");
+        // If both things are true, then we are in study-2
+        if (htmlSettings.isStudy && htmlSettings.predictionsOn){
             getStructuresForUserToDrawStudy();
             
            $('#forceNext').click(function(){
@@ -73,18 +74,18 @@ var structuresToDraw = null;
                 getStructuresForUserToDrawStudy();
             });
 
-        } else if (isStudy == "true"){
+        } else if (htmlSettings.isStudy){
             $("#numOfStruts").text("Structures Drawn: " + numOfStructs + " out of " + numberOfStructsToDraw);
         } else {
             $("#numOfStruts").text("Structures Drawn: " + numOfStructs);
         }
-
+        // Panel pressed, set the ketcker to that structure
         $('.prediction-panel').click(function() {
             setStructure($(this).data("panel-id"));
         });
 
         $('#saveBtn').click(function() {
-            if(isStudy == "true"){
+            if(htmlSettings.isStudy){
                 saveStructureStudy(structurePath);
             }else{
                 saveStructure(structurePath);
@@ -96,8 +97,9 @@ var structuresToDraw = null;
         });
         // For Study, sets startTime of drawing, and initalization of errors.
         $('#drawStrucutre').click(function(){
-            if (startTime == null){
-                startTime = moment().format(dateFormat);
+            if (studyData.startTime == null){
+                $("#panel-draw-study").hide();
+                studyData.startTime = moment().format(dateFormat);
             }
         });
     });
@@ -118,14 +120,12 @@ var structuresToDraw = null;
         var user = getMetadata();
         // Gets the type of prediction else just default.
         var type = (structuresToDraw == null || structuresToDraw.structures.length <= 0 ? 1 : structuresToDraw.types[numOfStructs + structureSkipIndex]);
-        console.log(structuresToDraw)
-        console.log(type)
         $.ajax({
             url: hostAddress + "/prediction",
             type: "get",
             datatype: "json",
             contentType: "application/json; charset=utf-8",
-            headers: { userId: user.userId, groupId: user.groupId, predictionsType : type }, 
+            headers: { userId: user.userId, groupId: user.groupId, predictionType : type }, 
             data:{"smiles": smiles},
             
             success: function(response) {
@@ -177,12 +177,20 @@ var structuresToDraw = null;
             var user = getMetadata();
             flatPath = flattenStructurePath(structurePath, structurePathIndex);
             var type = (structuresToDraw == null || structuresToDraw.structures.length <= 0 ? 1 : structuresToDraw.types[numOfStructs + structureSkipIndex]);
+            // Whether to just save structure and study data or just study data.
+            var path = (htmlSettings.predictionsOn) ? "/add/study" : "/add/structure/study";
+            console.log()
+            // Set up study Data object.
+            studyData.userId = user.userId;
+            studyData.predictionType = type;
+            var studyDataJson = JSON.stringify(studyData);
+
             $.ajax({
-                url:  hostAddress + "/add/structure/study",
+                url:  hostAddress + path,
                 type: "post",
                 datatype: "json",
                 contentType: "application/json; charset=utf-8",
-                headers: { userId: user.userId, groupId: user.groupId, startTime: startTime, predictionsUsed : predictionsUsed, predictionsType : type}, 
+                headers: { groupId: user.groupId, studyDataJson: studyDataJson }, 
                 data: JSON.stringify( flatPath ),
                 success: function(){
                     resetKetcher();
@@ -193,7 +201,7 @@ var structuresToDraw = null;
                 }
             });
         }
-        startTime = null;
+        studyData.startTime = null;
     }
 
     function resetKetcher(times){
@@ -295,8 +303,10 @@ var structuresToDraw = null;
         
         result = addStructureToPanel(panel, molfile);
 
+        var prob = prediction.probability;
+        prob = (prob.countDecimals() > 1) ? prob.toFixed(2) : prob ;
         var header = $("#panel-" + pannelId + "-footer");
-        header.text(prediction.probability);
+        header.text(prob);
 
         if (result){
              predictionMap[pannelId] = prediction;
@@ -318,7 +328,7 @@ var structuresToDraw = null;
     function setStructure(pannelId) {
         var structure = predictionMap[pannelId];
         if (structure != null){
-            predictionsUsed++;
+            studyData.predictionsUsed++;
             var molfile = structure.endStructure.mol
             var ketcher = getKetcher();
             if (ketcher && molfile){
@@ -351,11 +361,12 @@ var structuresToDraw = null;
 
     function numberOfStructsDrawn(){
         //Set next structure to Draw if Study 
-        if (isStudy == "true"){
+        if (htmlSettings.isStudy){
             $("#numOfStruts").text("Structures Drawn: " + ++numOfStructs + " out of " + numberOfStructsToDraw);
 
             if (structuresToDraw != null && structuresToDraw.structures[numOfStructs + structureSkipIndex] != null){
                 var panel = $("#panel-draw-study");
+                panel.show();
                 addStructureToPanel(panel, structuresToDraw.structures[numOfStructs + structureSkipIndex].mol);
             } else if (numOfStructs == numberOfStructsToDraw ){
                 $("#info").text("Thank you for finishing the study. Please give feedback. The feedback link is in the bar in the top right corner of the page.");
@@ -371,22 +382,23 @@ var structuresToDraw = null;
 
     function getStructuresForUserToDrawStudy(){
         var user = getMetadata();
+        var descirptionJson = JSON.stringify( description );
         $.ajax({
             url:  hostAddress + "/get/structures/userid",
             type: "get",
             datatype: "json",
-            contentType: "application/json; charset=utf-8",
-            headers: { userId: user.userId },
+            contentType: "application/json",
+            headers: { userId: user.userId, "description" : descirptionJson },
+
             success: function(response){
-                console.log(response);
+                console.log(response)
                 setUserStructuresToDraw(response);
             },
             error: function(xhr) {
-                if ((xhr.responseText).includes("com.index.exceptions.NotEnoughDataForStudyException")){
+                if (xhr.responseText != null && (xhr.responseText).includes("\"exception\":\"com.index.exceptions.NotEnoughDataForStudyException\"")){
                     $("#drawInfo").text(" Current user does not have enough data to do study. ");
                 }else{
                     $("#drawInfo").text("");
-                    console.log(xhr);
                 }
             }
         });
@@ -400,6 +412,11 @@ var structuresToDraw = null;
             var panel = $("#panel-draw-study");
             addStructureToPanel(panel, structuresToDraw.structures[0].mol);
         }
+    }
+
+    Number.prototype.countDecimals = function () {
+        if(Math.floor(this.valueOf()) === this.valueOf()) return 0;
+        return this.toString().split(".")[1].length || 0; 
     }
 
 } ) ( jQuery );

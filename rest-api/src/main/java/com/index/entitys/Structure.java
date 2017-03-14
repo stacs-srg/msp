@@ -16,7 +16,7 @@ public class Structure implements Serializable{
     @Column
     private String smiles;
 
-    @Column(length = 2000)
+    @Column(length = 1000000)
     private String mol;
 
     @Column

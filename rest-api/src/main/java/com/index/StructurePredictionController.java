@@ -1,15 +1,18 @@
 package com.index;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.index.Respones.StructurePrediction;
 import com.index.Respones.StructuresPredictionTypes;
+import com.index.RestParamaters.StudyStructuresDescription;
 import com.index.entitys.Structure;
+import com.index.entitys.StudyData;
 import com.index.exceptions.NotEnoughDataForStudyException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
@@ -22,6 +25,8 @@ public class StructurePredictionController
     @Autowired
     private StructurePredictionService service;
 
+    private static final String dateFormat = "yyyy-MM-dd HH:mm:ss:SS";
+
     @RequestMapping(method=GET, path="/")
     public Response respond()
     {
@@ -30,9 +35,9 @@ public class StructurePredictionController
 
     @CrossOrigin
     @RequestMapping(method=GET, path="/prediction")
-    public List<StructurePrediction> predict(@RequestParam String smiles, @RequestHeader int predictionsType, @RequestHeader int userId, @RequestHeader int groupId) {
+    public List<StructurePrediction> predict(@RequestParam String smiles, @RequestHeader int predictionType, @RequestHeader int userId, @RequestHeader int groupId) {
         System.out.println("Prediction called. Smile: " + smiles);
-	    return service.prediction(smiles, userId, groupId, predictionsType);
+	    return service.prediction(smiles, userId, groupId, predictionType);
     }
 
     @CrossOrigin
@@ -43,21 +48,38 @@ public class StructurePredictionController
 
     @CrossOrigin
     @RequestMapping(method=POST, path="/add/structure/study")
-    public void addStrucutre(@RequestBody ArrayList<Structure> path, @RequestHeader @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss:SS") Date startTime,
-                             @RequestHeader int userId, @RequestHeader int groupId, @RequestHeader int predictionsUsed, @RequestHeader int predictionsType){
-        Structure endStructure = service.addStructure(path, userId, groupId);
-        service.addStudyData(endStructure, startTime, userId, predictionsUsed, 0, 0, predictionsType);
+    public void addStrucutreStudy(@RequestBody ArrayList<Structure> path, @RequestHeader int groupId, @RequestHeader String studyDataJson) throws IOException {
+        StudyData studyData = CreateStudyData(studyDataJson);
+        Structure endStructure = service.addStructure(path, studyData.getUserId(), groupId);
+        studyData.setSmiles(endStructure.getSmiles());
+        service.addStudyData(studyData);
+    }
+
+    @CrossOrigin
+    @RequestMapping(method=POST, path="/add/study")
+    public void addStudy(@RequestBody ArrayList<Structure> path, @RequestHeader String studyDataJson) throws IOException {
+        StudyData studyData = CreateStudyData(studyDataJson);
+        Structure endStructure = service.getEndStructure(path);
+        studyData.setSmiles(endStructure.getSmiles());
+        service.addStudyData(studyData);
     }
 
     @CrossOrigin
     @RequestMapping(method=GET, path="/get/structures/userid")
-    public StructuresPredictionTypes getStructuresForUser(@RequestHeader int userId) throws NotEnoughDataForStudyException {
-        return service.getStructuresForUserWithTypes(userId);
+    public StructuresPredictionTypes getStructuresForUser(@RequestHeader String description, @RequestHeader int userId) throws NotEnoughDataForStudyException, IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        return service.getStructuresForUserWithTypes(userId, mapper.readValue(description, StudyStructuresDescription.class));
     }
 
     @CrossOrigin
     @RequestMapping(method=GET, path="/generate/molfile")
     public String cleanStrucutre(@RequestParam String smiles){
         return service.generateSmiles(smiles);
+    }
+
+    private StudyData CreateStudyData(String studyDataJson) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.setDateFormat(new SimpleDateFormat(dateFormat));
+        return mapper.readValue(studyDataJson, StudyData.class);
     }
 }

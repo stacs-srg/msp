@@ -1,6 +1,7 @@
 package com.index;
 
 import com.index.Respones.StructuresPredictionTypes;
+import com.index.RestParamaters.StudyStructuresDescription;
 import com.index.bayesian.BayesianNetworkData;
 import com.index.bayesian.SmilesToProb;
 import com.index.bayesian.StructureBayesianNetwork;
@@ -41,11 +42,14 @@ public class StructurePredictionService
         return new Response("Chemical Molecular Structure Prediction Tool");
     }
 
-    public List<StructurePrediction> prediction(String smiles, int userId, int groupId, int predictionsType){
-
-        BayesianNetworkData data = new BayesianNetworkData(smiles, edgeMetadataRepo, userId, groupId);
-        StructureBayesianNetwork network = new StructureBayesianNetwork(data, predictionsType);
+    public List<StructurePrediction> prediction(String smiles, int userId, int groupId, int predictionType){
         List<StructurePrediction> structures = new ArrayList<>();
+        // No Prediction type 0.
+        if (predictionType == 0){
+            return structures;
+        }
+        BayesianNetworkData data = new BayesianNetworkData(smiles, edgeMetadataRepo, userId, groupId);
+        StructureBayesianNetwork network = new StructureBayesianNetwork(data, predictionType);
         for(SmilesToProb smilesTo : network.generateBestChoices()){
             List<String> path = getPath(smilesTo.getSmilesTo());
             Structure endStructure = structureRepo.findOne(path.remove(path.size() - 1));
@@ -73,6 +77,11 @@ public class StructurePredictionService
             }
         }
         return path;
+    }
+
+
+    public Structure getEndStructure(ArrayList<Structure> path){
+        return cleanPath(path).get(path.size() - 1);
     }
 
     public Structure addStructure(ArrayList<Structure> path, int userId, int groupId){
@@ -150,15 +159,14 @@ public class StructurePredictionService
         return "";
     }
 
-    public void addStudyData(Structure endStructure, Date startTime, int userId, int numberOfPredictions,
-                             int rubs, int undos, int predictionsType){
-        studyRepo.save(new StudyData(startTime, new Date(), userId,
-                endStructure.getSmiles(), undos, rubs, numberOfPredictions, predictionsType));
+    public void addStudyData(StudyData data){
+        data.setEndTime(new Date());
+        studyRepo.save(data);
     }
 
-    public StructuresPredictionTypes getStructuresForUserWithTypes(int userId) throws NotEnoughDataForStudyException {
+    public StructuresPredictionTypes getStructuresForUserWithTypes(int userId, StudyStructuresDescription description) throws NotEnoughDataForStudyException {
         List<Structure> userStructures = edgeMetadataRepo.findByUserIdAllEndStructuresRandom(userId);
         List<Structure> otherStructures = edgeMetadataRepo.findByNotUserIdAllEndStructuresRandom(userId);
-        return new StructuresPredictionTypes(userStructures, otherStructures);
+        return new StructuresPredictionTypes(userStructures, otherStructures, description);
     }
 }
