@@ -48,9 +48,9 @@ public class StructurePredictionController
 
     @CrossOrigin
     @RequestMapping(method=POST, path="/add/structure/study")
-    public void addStrucutreStudy(@RequestBody ArrayList<Structure> path, @RequestHeader int groupId, @RequestHeader String studyDataJson) throws IOException {
+    public void addStrucutreStudy(@RequestBody ArrayList<Structure> path, @RequestHeader String studyDataJson) throws IOException {
         StudyData studyData = CreateStudyData(studyDataJson);
-        Structure endStructure = service.addStructure(path, studyData.getUserId(), groupId);
+        Structure endStructure = service.addStructure(path, studyData.getUserId(), studyData.getGroupId());
         studyData.setSmilesDrawn(endStructure.getSmiles());
         service.addStudyData(studyData);
     }
