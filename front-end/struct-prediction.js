@@ -1,5 +1,5 @@
-var hostAddress = "http://localhost:17938/structure-prediction";
-//var hostAddress = "https://jacr.host.cs.st-andrews.ac.uk/structure-prediction"
+//var hostAddress = "http://localhost:17938/structure-prediction";
+var hostAddress = "https://jacr.host.cs.st-andrews.ac.uk/structure-prediction"
 
 var dateFormat = "YYYY-MM-DD HH:mm:ss:SSS";
 
@@ -393,12 +393,14 @@ var structuresToDraw = null;
             success: function(response){
                 console.log(response)
                 setUserStructuresToDraw(response);
-            },
+            	$("#drawInfo").text("");
+	    },
             error: function(xhr) {
                 if (xhr.responseText != null && (xhr.responseText).includes("\"exception\":\"com.index.exceptions.NotEnoughDataForStudyException\"")){
                     $("#drawInfo").text(" Current user does not have enough data to do study. ");
                 }else{
                     $("#drawInfo").text("");
+		    console.log(xhr);
                 }
             }
         });
