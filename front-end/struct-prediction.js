@@ -93,7 +93,6 @@ var structuresToDraw = null;
         // For Study, sets startTime of drawing, and initalization of errors.
         $('#drawStrucutre').click(function(){
             if (studyData.startTime == null){
-                $("#panel-draw-study").hide();
                 studyData.startTime = moment().format(dateFormat);
             }
         });
@@ -345,7 +344,6 @@ var structuresToDraw = null;
 
             if (structuresToDraw != null && structuresToDraw.structures[numOfStructs] != null){
                 var panel = $("#panel-draw-study");
-                panel.show();
                 addStructureToPanel(panel, structuresToDraw.structures[numOfStructs].mol);
             } else if (numOfStructs == numberOfStructsToDraw ){
                 $("#info").text("Thank you for finishing the study. Please give feedback. The feedback link is in the bar in the top right corner of the page.");
@@ -377,7 +375,7 @@ var structuresToDraw = null;
 	    },
             error: function(xhr) {
                 if (xhr.responseText != null && (xhr.responseText).includes("\"exception\":\"com.index.exceptions.NotEnoughDataForStudyException\"")){
-                    $("#drawInfo").text("Current user ID used does not have enough structures drawn to do study. ");
+                    $("#drawInfo").text("The current user ID inserted does not have enough structures drawn for the study to operate.");
                	    $("#drawStrucutre").prop('disabled', true);
 		}else{
 		    $("#drawStrucutre").prop('disabled', true);
