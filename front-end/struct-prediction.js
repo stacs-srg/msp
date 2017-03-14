@@ -96,6 +96,14 @@ var structuresToDraw = null;
                 studyData.startTime = moment().format(dateFormat);
             }
         });
+        // Code to get events triggered in ketcher. Used to count. 
+        var doc = document.getElementById('ketcherFrame').contentWindow.document
+        doc.addEventListener("undoUsed", function(e) {
+            studyData.undos++;
+        });
+        doc.addEventListener("rubberUsed", function(e) {
+            studyData.rubs++;
+        });
     });
 
     function getKetcher(){
