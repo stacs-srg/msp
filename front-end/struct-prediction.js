@@ -377,11 +377,11 @@ var structuresToDraw = null;
 	    },
             error: function(xhr) {
                 if (xhr.responseText != null && (xhr.responseText).includes("\"exception\":\"com.index.exceptions.NotEnoughDataForStudyException\"")){
-                    $("#drawInfo").text("Current user does not have enough data to do study. ");
+                    $("#drawInfo").text("Current user ID used does not have enough structures drawn to do study. ");
                	    $("#drawStrucutre").prop('disabled', true);
 		}else{
 		    $("#drawStrucutre").prop('disabled', true);
-                    $("#drawInfo").text("Error Getting data structures.");
+                    $("#drawInfo").text("Error getting data structures.");
 		    console.log(xhr);
                 }
             }
