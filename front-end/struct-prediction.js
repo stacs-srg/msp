@@ -177,10 +177,10 @@ var structuresToDraw = null;
             console.log()
             // Set up study Data object.
             studyData.userId = user.userId;
-            studyData.groupId = user.groupId
+            studyData.groupId = user.groupId;
             studyData.predictionType = type;
             if (structuresToDraw != null){
-                studyData.smiles = structuresToDraw[numOfStruts];
+                studyData.smiles = structuresToDraw.structures.[numOfStruts];
             }
             var studyDataJson = JSON.stringify(studyData);
 
