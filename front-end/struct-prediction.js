@@ -180,7 +180,7 @@ var structuresToDraw = null;
             studyData.groupId = user.groupId;
             studyData.predictionType = type;
             if (structuresToDraw != null){
-                studyData.smiles = structuresToDraw.structures.[numOfStruts];
+                studyData.smiles = structuresToDraw.structures[numOfStruts];
             }
             var studyDataJson = JSON.stringify(studyData);
 
