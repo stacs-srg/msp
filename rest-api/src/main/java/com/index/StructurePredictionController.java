@@ -51,7 +51,7 @@ public class StructurePredictionController
     public void addStrucutreStudy(@RequestBody ArrayList<Structure> path, @RequestHeader int groupId, @RequestHeader String studyDataJson) throws IOException {
         StudyData studyData = CreateStudyData(studyDataJson);
         Structure endStructure = service.addStructure(path, studyData.getUserId(), groupId);
-        studyData.setSmiles(endStructure.getSmiles());
+        studyData.setSmilesDrawn(endStructure.getSmiles());
         service.addStudyData(studyData);
     }
 
@@ -60,7 +60,7 @@ public class StructurePredictionController
     public void addStudy(@RequestBody ArrayList<Structure> path, @RequestHeader String studyDataJson) throws IOException {
         StudyData studyData = CreateStudyData(studyDataJson);
         Structure endStructure = service.getEndStructure(path);
-        studyData.setSmiles(endStructure.getSmiles());
+        studyData.setSmilesDrawn(endStructure.getSmiles());
         service.addStudyData(studyData);
     }
 
