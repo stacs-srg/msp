@@ -180,10 +180,10 @@ var structuresToDraw = null;
             studyData.groupId = user.groupId;
             studyData.predictionType = type;
             if (structuresToDraw != null){
-                studyData.smiles = structuresToDraw.structures[numOfStruts];
+                studyData.smiles = structuresToDraw.structures[numOfStructs].smiles;
             }
             var studyDataJson = JSON.stringify(studyData);
-
+            console.log("study data: ", studyDataJson);
             $.ajax({
                 url:  hostAddress + path,
                 type: "post",
