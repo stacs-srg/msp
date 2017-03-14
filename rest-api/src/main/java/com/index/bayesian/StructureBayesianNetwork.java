@@ -114,13 +114,13 @@ public class StructureBayesianNetwork {
                     if (predictionType == 2) {
                         Map<String, Long> groupIdsSmilesTo = data.getGroupIdSmilesToPicks();
                         double groupIdSmiles = groupIdsSmilesTo.get(groupId.getKey().toString() + smilesTo.getKey());
-                        structureDefinition[defIndex] = generateProbForOneGiven(userId.getValue(),
+                        structureDefinition[defIndex] = generateProbForOneGiven(groupId.getValue(),
                                 groupIdSmiles, smilesTo.getValue(), totalDecisions);
                     } else if (predictionType == 3) {
                         Map<String, Long> userGroupSmilesTos = data.getUserIdGroupIdSmilesToPicks();
-                        Map<String, Long> usersGroup = data.getUserIdGroupIdPicks();
+                        Map<String, Long> userGroups = data.getUserIdGroupIdPicks();
                         double userGroupSmilesTo = userGroupSmilesTos.get(userId.getKey().toString() + groupId.getKey().toString() + smilesTo.getKey());
-                        double userGroup = usersGroup.get(userId.getKey().toString() + groupId.getKey().toString());
+                        double userGroup = userGroups.get(userId.getKey().toString() + groupId.getKey().toString());
                         structureDefinition[defIndex] = generateProbForOneGiven(userGroup,userGroupSmilesTo,smilesTo.getValue(), totalDecisions);
                     } else {
                         Map<String, Long> userIdsSmilesTo = data.getUserIdSmilesToPicks();
