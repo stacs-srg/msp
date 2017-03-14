@@ -373,12 +373,15 @@ var structuresToDraw = null;
                 console.log(response)
                 setUserStructuresToDraw(response);
             	$("#drawInfo").text("");
+	        $("#drawStrucutre").prop('disabled', false);    
 	    },
             error: function(xhr) {
                 if (xhr.responseText != null && (xhr.responseText).includes("\"exception\":\"com.index.exceptions.NotEnoughDataForStudyException\"")){
-                    $("#drawInfo").text(" Current user does not have enough data to do study. ");
-                }else{
-                    $("#drawInfo").text("");
+                    $("#drawInfo").text("Current user does not have enough data to do study. ");
+               	    $("#drawStrucutre").prop('disabled', true);
+		}else{
+		    $("#drawStrucutre").prop('disabled', true);
+                    $("#drawInfo").text("Error Getting data structures.");
 		    console.log(xhr);
                 }
             }
