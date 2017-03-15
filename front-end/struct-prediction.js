@@ -376,6 +376,9 @@ var structuresToDraw = null;
                 success: function(){
                     resetKetcher();
                     numberOfStructsDrawn();
+                    studyData.undos = 0;
+                    studyData.rubs = 0; 
+                    studyData.predictionsUsed = 0;
                 },
                 error: function(xhr) {
                     console.log(xhr);
