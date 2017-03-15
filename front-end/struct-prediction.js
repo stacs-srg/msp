@@ -1,5 +1,5 @@
-//var hostAddress = "http://localhost:17938/structure-prediction";
-var hostAddress = "https://jacr.host.cs.st-andrews.ac.uk/structure-prediction"
+var hostAddress = "http://localhost:17938/structure-prediction";
+//var hostAddress = "https://jacr.host.cs.st-andrews.ac.uk/structure-prediction"
 
 var dateFormat = "YYYY-MM-DD HH:mm:ss:SSS";
 
@@ -21,6 +21,14 @@ var studyData = { smiles : null, startTime: null, userId : null, predictionsUsed
     predictionType : settings.predictionType, rubs : 0, undos : 0};
 // List of strucutres that is producted from the desciption.
 var structuresToDraw = null;
+
+var emptyMolfile = [
+        "",
+        "  Ketcher 02151213522D 1   1.00000     0.00000     0",
+        "",
+        "  0  0  0     0  0            999 V2000",
+        "M  END"
+      ].join("\n");
 
 ( function($) {
 
@@ -98,13 +106,7 @@ var structuresToDraw = null;
             }
         });
         // Code to get events triggered in ketcher. Used to count number of times. 
-        var doc = document.getElementById('ketcherFrame').contentWindow.document
-        doc.addEventListener("undoUsed", function(e) {
-            studyData.undos++;
-        });
-        doc.addEventListener("rubberUsed", function(e) {
-            studyData.rubs++;
-        });
+        setEventListenersForKetcher();
     });
 
     function getKetcher(){
@@ -167,7 +169,7 @@ var structuresToDraw = null;
     function resetKetcher(times){
         var ketcher = getKetcher();
         if(ketcher){
-            document.getElementById('ketcherFrame').src = document.getElementById('ketcherFrame').src;
+            ketcher.setMolecule(emptyMolfile);
             structurePath = [ { smiles : "" } ];
             structurePathIndex = structurePath.length - 1;
             resetNumberOfPanels(0);
@@ -243,6 +245,18 @@ var structuresToDraw = null;
         return { userId : array[0].value, groupId : array[1].value};
     }
 
+    function setEventListenersForKetcher(){
+        var doc = document.getElementById('ketcherFrame').contentWindow.document
+        doc.addEventListener("undoUsed", function(e) {
+            studyData.undos++;
+            console.log("UNDO ---------");
+        });
+        doc.addEventListener("rubberUsed", function(e) {
+            studyData.rubs++;
+            console.log("RUB ---------");
+        });
+    }
+
 // -----------------------------------------------------------------------------------------------
 //      Code for Prediction Panels
 // -----------------------------------------------------------------------------------------------
@@ -264,7 +278,6 @@ var structuresToDraw = null;
             i++;
         } 
     }
-
 
     function addStructureToPanel(panel, molfile){
         panel.empty();
@@ -376,6 +389,7 @@ var structuresToDraw = null;
                 success: function(){
                     resetKetcher();
                     numberOfStructsDrawn();
+                    clearStudyData();
                 },
                 error: function(xhr) {
                     console.log(xhr);
@@ -383,6 +397,16 @@ var structuresToDraw = null;
             });
         }
         studyData.startTime = null;
+    }
+
+
+
+    function clearStudyData(){
+        studyData.smiles = null;
+        studyData.undos = 0;
+        studyData.rubs = 0;
+        studyData.predictionsUsed = 0;
+        studyData.smiles = null; 
     }
 
     function generateStudyJson(){
