@@ -1,5 +1,5 @@
-var hostAddress = "http://localhost:17938/structure-prediction";
-//var hostAddress = "https://jacr.host.cs.st-andrews.ac.uk/structure-prediction"
+//var hostAddress = "http://localhost:17938/structure-prediction";
+var hostAddress = "https://jacr.host.cs.st-andrews.ac.uk/structure-prediction"
 
 var dateFormat = "YYYY-MM-DD HH:mm:ss:SSS";
 
@@ -11,13 +11,14 @@ var predictionIndex = -1;
 // default value 10
 var numberOfStructsToDraw = 10;
 var numOfStructs = 0;
-// Data that is sent for study
-var studyData = { smiles : null, startTime: null, userId : null, predictionsUsed : 0, predictionType : 0, rubs : 0, undos : 0};
 // Settings on what to use.
-var settings = { isStudy : false, predictionsOn : true, predictionType : 3 }
+var settings = { isStudy : false, predictionsOn : true, predictionType : 1 }
 // Describes the structures format for the study data. 
-// GROUPS: no-prediction: 0, user : 1, groups: 2, both: 3
+// how the study data is orgaised: no-prediction: 0, user : 1, groups: 2, both: 3
 var description = { numUserStructures: 4, numOtherStructures : 3, numOfGroups : 4 }
+// Data that is sent for study
+var studyData = { smiles : null, startTime: null, userId : null, predictionsUsed : 0, 
+    predictionType : settings.predictionType, rubs : 0, undos : 0};
 // List of strucutres that is producted from the desciption.
 var structuresToDraw = null;
 

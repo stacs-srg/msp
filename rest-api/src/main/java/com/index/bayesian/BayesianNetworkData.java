@@ -20,10 +20,6 @@ public class BayesianNetworkData {
 
     private Map<String, Long> smilesToTotalPicks;
 
-    private Map<String, Long> userIdGroupIdSmilesToPicks;
-
-    private Map<String, Long> userIdGroupIdPicks;
-
     private Map<String, Long> userIdSmilesToPicks;
 
     private Map<String, Long> groupIdSmilesToPicks;
@@ -46,8 +42,6 @@ public class BayesianNetworkData {
 
         userIdSmilesToPicks = new HashMap<>();
         groupIdSmilesToPicks = new HashMap<>();
-        userIdGroupIdPicks = new HashMap<>();
-        userIdGroupIdSmilesToPicks = new HashMap<>();
 
         totalDecisions = 0;
 
@@ -69,6 +63,8 @@ public class BayesianNetworkData {
         }
 
         setUpData(userIds, smilesTos, groupIds, edges);
+
+        System.out.println();
     }
 
     private void setUpData(List<Integer> userIds, List<String> smilesTos, List<Integer> groupIds, List<EdgeMetadata> edges){
@@ -100,10 +96,8 @@ public class BayesianNetworkData {
                     addTimesToMap(smilesToTotalPicks, smilesTo, times);
                     addTimesToMap(groupIdTotalDecisions, groupId, times);
                     addTimesToMap(userIdTotalDecisions, userId, times);
-                    addTimesToMap(userIdGroupIdPicks, userId.toString()+groupId.toString(), times);
                     addTimesToMap(userIdSmilesToPicks, userId.toString()+smilesTo, times);
                     addTimesToMap(groupIdSmilesToPicks, groupId.toString()+smilesTo, times);
-                    addTimesToMap(userIdGroupIdSmilesToPicks, userId.toString()+groupId.toString()+smilesTo, times);
                     totalDecisions += times;
                 }
                 first = false;
@@ -148,13 +142,6 @@ public class BayesianNetworkData {
         return groupIdTotalDecisions;
     }
 
-    public Map<String, Long> getUserIdGroupIdSmilesToPicks() {
-        return userIdGroupIdSmilesToPicks;
-    }
-
-    public Map<String, Long> getUserIdGroupIdPicks() {
-        return userIdGroupIdPicks;
-    }
 
     public Map<String, Long> getGroupIdSmilesToPicks() {
         return groupIdSmilesToPicks;

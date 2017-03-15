@@ -103,65 +103,79 @@ public class StructureBayesianNetwork {
         Map<Integer, Long> userIds = data.getUserIdTotalDecisions();
         Map<Integer, Long> groupIds = data.getGroupIdTotalDecisions();
         double totalDecisions = data.getTotalDecisions();
-
         double[] structureDefinition = new double[smilesTos.size() * userIds.size() * groupIds.size()];
+
         int defIndex = 0;
         for (Map.Entry<Integer, Long> userId : userIds.entrySet()) {
             for (Map.Entry<Integer, Long> groupId : groupIds.entrySet()) {
                 for (Map.Entry<String, Long> smilesTo : smilesTos.entrySet()) {
-
-                    // default = just user, type 2 = just group and type = 3 both group and user.
-                    if (predictionType == 2) {
-                        Map<String, Long> groupIdsSmilesTo = data.getGroupIdSmilesToPicks();
-                        double groupIdSmiles = groupIdsSmilesTo.get(groupId.getKey().toString() + smilesTo.getKey());
-                        structureDefinition[defIndex] = generateProbForOneGiven(groupId.getValue(),
-                                groupIdSmiles, smilesTo.getValue(), totalDecisions);
-                    } else if (predictionType == 3) {
-                        Map<String, Long> userGroupSmilesTos = data.getUserIdGroupIdSmilesToPicks();
-                        Map<String, Long> userGroups = data.getUserIdGroupIdPicks();
-                        double userGroupSmilesTo = userGroupSmilesTos.get(userId.getKey().toString() + groupId.getKey().toString() + smilesTo.getKey());
-                        double userGroup = userGroups.get(userId.getKey().toString() + groupId.getKey().toString());
-                        structureDefinition[defIndex] = generateProbForOneGiven(userGroup,userGroupSmilesTo,smilesTo.getValue(), totalDecisions);
-                    } else {
-                        Map<String, Long> userIdsSmilesTo = data.getUserIdSmilesToPicks();
-                        double userIdSmiles = userIdsSmilesTo.get(userId.getKey().toString() + smilesTo.getKey());
-                        structureDefinition[defIndex] = generateProbForOneGiven(userId.getValue(),
-                                userIdSmiles, smilesTo.getValue(), totalDecisions);
+                    // default = just user, 2 = just group and 3 both group and user.
+                    String key;
+                    switch (predictionType){
+                        case 2 :
+                            Map<String, Long> groupIdsSmilesTo = data.getGroupIdSmilesToPicks();
+                            key = groupId.getKey().toString() + smilesTo.getKey();
+                            structureDefinition[defIndex] = generateProbForOneGiven(groupIdsSmilesTo, key,
+                                    groupId.getValue(), smilesTo.getValue(), totalDecisions);
+                            break;
+                        case 3:
+                            structureDefinition[defIndex] = generateProbForTwoGiven(userId, groupId, smilesTo, totalDecisions);
+                            break;
+                        default:
+                            Map<String, Long> userIdsSmilesTo = data.getUserIdSmilesToPicks();
+                            key = userId.getKey().toString() + smilesTo.getKey();
+                            structureDefinition[defIndex] = generateProbForOneGiven(userIdsSmilesTo, key,
+                                    userId.getValue(), smilesTo.getValue(), totalDecisions);
                     }
                     defIndex++;
+                }
+                // Need to calculate alpha For case three, where you require logs in calculation
+                if (predictionType == 3) {
+                    double alpha = 0;
+                    for (int i = 0; i < smilesTos.size(); i++) {
+                        alpha += structureDefinition[defIndex - smilesTos.size() + i];
+                    }
+                    alpha = 1 / alpha;
+                    for (int i = 0; i < smilesTos.size(); i++){
+                        double value = structureDefinition[defIndex - smilesTos.size() + i];
+                        structureDefinition[defIndex - smilesTos.size() + i] = alpha * value;
+                    }
                 }
             }
         }
         network.setNodeDefinition(structureNodeName, structureDefinition);
     }
 
-    private double generateProbForOneGiven(double knownValue, double jointValue,
+
+    private double generateProbForOneGiven(Map<String, Long> map, String key, double knownValue,
                                            double smilesTo, double totalDecisions){
+        double jointValue = map.get(key);
         // P(A | B) = ( P(B | A) * P(A) ) / P(B)
         double P_BGivenA =  jointValue / smilesTo;
         double P_A = smilesTo / totalDecisions;
         double P_B = knownValue / totalDecisions;
-        // Prob of user/group one then it must just be the probability of it being the smile.
-        if (P_B == 1) {
-            return P_A;
-        }else{
-            return (P_BGivenA * P_A) / P_B;
-        }
+        // Prob of user/group is one then it must just be the probability of it being the smile.
+        return (P_BGivenA * P_A) / P_B;
     }
 
-    private double generateProbForTwoGiven(double user, double group, double GroupAndUserGivenSmiles,
-                                           double smilesTo, double totalDecisions){
-        // P(A | B, C ) = ( P(B, C | A) * P(A) ) / P(B, C)
-        // P(B, C)  = P(B) * P(C)
-        double P_BAndCGivenA = GroupAndUserGivenSmiles / smilesTo;
-        double P_BAndC =  (group / totalDecisions) * (user / totalDecisions);
-        double P_A = smilesTo / totalDecisions;
-        // Prob of user/group one then it must just be the probability of it being the smile.
-        if (P_BAndC == 1) {
-            return P_A;
-        }else{
-            return (P_BAndCGivenA * P_A) / P_BAndC;
-        }
+    private double generateProbForTwoGiven(Map.Entry<Integer, Long> userId, Map.Entry<Integer, Long> groupId,
+                                           Map.Entry<String, Long> smilesTo, double totalDecisions){
+        double smilesToPicks = smilesTo.getValue();
+
+        Map<String, Long> userIdMap = data.getUserIdSmilesToPicks();
+        String key = userId.getKey().toString() + smilesTo.getKey();
+        double userIdPicks = userIdMap.get(key);
+
+        Map<String, Long> groupIdMap = data.getGroupIdSmilesToPicks();
+        key = groupId.getKey().toString() + smilesTo.getKey();
+        double groupIdPicks = (double) groupIdMap.get(key);
+
+        // P (A | B & C) = P(B | A) * P(A) P(C | A) * P(A)
+        double P_BGivenA = userIdPicks / smilesToPicks;
+        double P_BGivenB =  groupIdPicks / smilesToPicks;
+        double P_A = smilesToPicks / totalDecisions;
+
+        return P_BGivenA * P_A * P_BGivenB * P_A;
     }
 
     public List<SmilesToProb> generateBestChoices(){
