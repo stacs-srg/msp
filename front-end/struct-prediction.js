@@ -249,11 +249,9 @@ var emptyMolfile = [
         var doc = document.getElementById('ketcherFrame').contentWindow.document
         doc.addEventListener("undoUsed", function(e) {
             studyData.undos++;
-            console.log("UNDO ---------");
         });
         doc.addEventListener("rubberUsed", function(e) {
             studyData.rubs++;
-            console.log("RUB ---------");
         });
     }
 
@@ -443,5 +441,4 @@ var emptyMolfile = [
     }
 
 } ) ( jQuery );
-
 
