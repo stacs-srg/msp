@@ -1,0 +1,1 @@
+select user_id, sum(char_length(smiles_drawn)) as totalLengthOfSmiles, sum(predictions_used) as totalPredictionsUsed, sum(TIMEDIFF(end_time,start_time)) as total_time from study_data group by user_id order by total_time;

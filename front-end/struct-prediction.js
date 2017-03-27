@@ -31,9 +31,9 @@ var emptyMolfile = [
       ].join("\n");
 
 ( function($) {
-
     $('#ketcherFrame').on('load', function () {   
         var ketcher = getKetcher();
+        // Builds up the path structure on change of the ketcher.
         ketcher.onStructChange(function() {
             var path = [];
             if (predictionIndex != -1){
@@ -44,7 +44,7 @@ var emptyMolfile = [
             var pastStruct = structurePath[structurePathIndex - 1];
             var futureStruct = structurePath[structurePathIndex + 1];
 
-            // Move back or forwards in the history if redo or undo. Removes them from the path.
+            // Move back or forwards in the history if redo or undo pressed.
             var undo = (pastStruct && pastStruct.smiles == newStrut.smiles);
             var redo = (futureStruct && futureStruct.smiles == newStrut.smiles);
             if (!undo && !redo){
@@ -109,18 +109,6 @@ var emptyMolfile = [
         setEventListenersForKetcher();
     });
 
-    function getKetcher(){
-        var frame = null;
-
-        if ('frames' in window && 'ketcherFrame' in window.frames)
-            frame = window.frames['ketcherFrame'];
-        else
-            return null;
-
-        if ('window' in frame)
-            return frame.window.ketcher;
-    }
-
     function requestPredictions(smiles){
         var user = getMetadata();
         // Gets the type of prediction else just default.
@@ -164,6 +152,23 @@ var emptyMolfile = [
                 }
             });
         }
+    }
+
+    function getMetadata(){
+        var array = $('#metadataForm').serializeArray();
+        return { userId : array[0].value, groupId : array[1].value};
+    }
+
+    function getKetcher(){
+        var frame = null;
+
+        if ('frames' in window && 'ketcherFrame' in window.frames)
+            frame = window.frames['ketcherFrame'];
+        else
+            return null;
+
+        if ('window' in frame)
+            return frame.window.ketcher;
     }
 
     function resetKetcher(times){
@@ -240,21 +245,6 @@ var emptyMolfile = [
         }
     }
 
-    function getMetadata(){
-        var array = $('#metadataForm').serializeArray();
-        return { userId : array[0].value, groupId : array[1].value};
-    }
-
-    function setEventListenersForKetcher(){
-        var doc = document.getElementById('ketcherFrame').contentWindow.document
-        doc.addEventListener("undoUsed", function(e) {
-            studyData.undos++;
-        });
-        doc.addEventListener("rubberUsed", function(e) {
-            studyData.rubs++;
-        });
-    }
-
 // -----------------------------------------------------------------------------------------------
 //      Code for Prediction Panels
 // -----------------------------------------------------------------------------------------------
@@ -305,6 +295,13 @@ var emptyMolfile = [
         if (result){
              predictionMap[pannelId] = prediction;
          }
+    }
+    // Count number of decimal places of a number
+    Number.prototype.countDecimals = function () {
+        if(Math.floor(this.valueOf()) === this.valueOf()){
+            return 0;
+        }
+        return this.toString().split(".")[1].length || 0; 
     }
 
     function restPanel(pannelId){
@@ -435,9 +432,14 @@ var emptyMolfile = [
         }
     }
 
-    Number.prototype.countDecimals = function () {
-        if(Math.floor(this.valueOf()) === this.valueOf()) return 0;
-        return this.toString().split(".")[1].length || 0; 
+    function setEventListenersForKetcher(){
+        var doc = document.getElementById('ketcherFrame').contentWindow.document
+        doc.addEventListener("undoUsed", function(e) {
+            studyData.undos++;
+        });
+        doc.addEventListener("rubberUsed", function(e) {
+            studyData.rubs++;
+        });
     }
 
 } ) ( jQuery );
