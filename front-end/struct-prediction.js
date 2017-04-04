@@ -1,5 +1,5 @@
-//var hostAddress = "http://localhost:17938/structure-prediction";
-var hostAddress = "https://jacr.host.cs.st-andrews.ac.uk/structure-prediction"
+var hostAddress = "http://localhost:17938/structure-prediction";
+//var hostAddress = "https://jacr.host.cs.st-andrews.ac.uk/structure-prediction"
 
 var dateFormat = "YYYY-MM-DD HH:mm:ss:SSS";
 
@@ -12,7 +12,7 @@ var predictionIndex = -1;
 var numberOfStructsToDraw = 10;
 var numOfStructs = 0;
 // Settings on what to use.
-var settings = { isStudy : false, predictionsOn : true, predictionType : 1 }
+var settings = { isStudy : false, predictionsOn : true, predictionType : 3 }
 // Describes the structures format for the study data. 
 // how the study data is orgaised: no-prediction: 0, user : 1, groups: 2, both: 3
 var description = { numUserStructures: 4, numOtherStructures : 3, numOfGroups : 4 }
