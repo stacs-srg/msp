@@ -53,3 +53,16 @@ dependencies {
     compile group: 'org.hsqldb', name: 'hsqldb', version: '2.3.4'
 }
 
+import org.ajoberstar.gradle.git.tasks.*
+
+task cloneRDKit(type: GitClone) {
+        def destination = file("libs/rdkit")
+        uri = "https://github.com/rdkit/rdkit.git"
+        destinationPath = destination
+        bare = false
+        enabled = !destination.exists() //to clone only once
+}
+
+build.dependsOn cloneRDKit
+
+
