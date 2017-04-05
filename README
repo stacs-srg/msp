@@ -9,9 +9,9 @@
        		buildRDKit.sh
             (you might need some dependices) (takes sometime) 
             
-            * alterantive - If you do not require to run the clean up function button:
-            You can remove the references to RDKIT within the code. 
-            (INSTRUCTIONS IN README-REMOVE-RDKIT) *
+            * alterantive - If you do not require to run the clean up function button (which you will more likely not need to):
+				replace file StructurePredictionService.java with StructurePredictionService.java.replace
+				files found in folder: /rest-api/src/main/java/com/index
 
 	1. Move into the /rest-api from root and run: 
 		gradle build

@@ -17,7 +17,7 @@ var settings = { isStudy : false, predictionsOn : true, predictionType : 3 }
 // how the study data is orgaised: no-prediction: 0, user : 1, groups: 2, both: 3
 var description = { numUserStructures: 4, numOtherStructures : 3, numOfGroups : 4 }
 // Data that is sent for study
-var studyData = { smiles : null, startTime: null, userId : null, predictionsUsed : 0, 
+var studyData = { smiles : null, startTime: null, endTime: null, userId : null, predictionsUsed : 0, 
     predictionType : settings.predictionType, rubs : 0, undos : 0};
 // List of strucutres that is producted from the desciption.
 var structuresToDraw = null;
@@ -411,6 +411,7 @@ var emptyMolfile = [
             studyData.userId = user.userId;
             studyData.groupId = user.groupId;
             studyData.predictionType = type;
+            studyData.endTime = moment().format(dateFormat);
             if (structuresToDraw != null){
                 studyData.smiles = structuresToDraw.structures[numOfStructs].smiles;
             }
