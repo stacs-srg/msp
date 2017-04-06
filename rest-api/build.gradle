@@ -39,18 +39,17 @@ dependencies {
     testCompile 'junit:junit:4.12'
     compile("org.springframework.boot:spring-boot-starter-data-jpa")
     compile("javax.servlet:jstl:1.2")
-    runtime("mysql:mysql-connector-java")
+	runtime("mysql:mysql-connector-java")
     compile("org.springframework.boot:spring-boot-starter-jdbc")
-
     compile("org.springframework.boot:spring-boot-starter-web")
-    //exclude module: "spring-boot-starter-tomcat"
-    
-   //compile("org.springframework.boot:spring-boot-starter-jetty")
 
     compile files('libs/rdkit/Code/JavaWrappers/gmwrapper/org.RDKit.jar')
 
     compile fileTree(dir: 'libs/jsmile_linux64', include: ['*.jar','*.so'])
     compile group: 'org.hsqldb', name: 'hsqldb', version: '2.3.4'
+	// Documneation Gen
+	compile group: 'org.jsondoc', name: 'spring-boot-starter-jsondoc', version: '1.1.5'
+    compile group: 'org.jsondoc', name: 'jsondoc-ui-webjar', version: '1.1.8'
 }
 
 import org.ajoberstar.gradle.git.tasks.*

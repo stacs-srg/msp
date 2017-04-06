@@ -5,21 +5,27 @@ import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.ArrayList;
 
+import org.jsondoc.core.annotation.ApiObjectField;
+import org.jsondoc.core.annotation.ApiObject;
 
 /**
  * Created by jaco1a on 22/12/16.
  */
 @Entity
+@ApiObject
 public class Structure implements Serializable{
 
     @Id
+    @ApiObjectField(description = "SMILES string of object")
     @Column
     private String smiles;
 
     @Column(length = 1000000)
+    @ApiObjectField(description = "Molfile of object")
     private String mol;
 
     @Column
+    @ApiObjectField(description = "boolean if end structure")
     private int end;
 
     public String getSmiles() {
