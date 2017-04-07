@@ -28,7 +28,7 @@ import org.jsondoc.core.annotation.ApiHeader;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
-@Api(name = "Structure Prediction", description = "Methods for prediction and saving of structures. ")
+@Api(name = "Structure Prediction", description = "Methods for generating prediction and saving structures.")
 @RestController
 @RequestMapping(value = "/structure-prediction", produces = MediaType.APPLICATION_JSON_VALUE)
 public class StructurePredictionController
