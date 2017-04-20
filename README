@@ -48,11 +48,12 @@ To run the rest-api from command line run bash file /rest-api/run.sh
  How to run web page 
 ----------------------
 open file /front-end/structure-preidtion.js
-and set the server address to:
-for local  -
-for remote -
+and set the server address at the top of the javascript file to:
+
+    http://localhost:17938/structure-prediction
 
 To open the front end componenet run:
 	google-chrome --allow-file-access-from-files
 
 And open struct-predicion.html in that window.
+
